@@ -1,25 +1,81 @@
-﻿import { useState, useRef, useCallback } from 'react';
+﻿import { useState, useRef, useCallback, useEffect } from 'react';
 import { useCamera } from './hooks/useCamera';
 import { useInference, InferenceResult } from './hooks/useInference';
 import { useLandmarks } from './hooks/useLandmarks';
-import { CameraView } from './components/CameraView';
-import { PredictionBanner } from './components/PredictionBanner';
+import { Header } from './components/Header';
+import { NoticeBanner } from './components/NoticeBanner';
+import { Stage } from './components/Stage';
+import { SidePanel, TranscriptItem } from './components/SidePanel';
 import { StatusBar } from './components/StatusBar';
-import { VocabularyModal } from './components/VocabularyModal';
-import { NUM_CLASSES } from './lib/labels';
+import { SettingsModal, ThemeOption, CaptionSize } from './components/SettingsModal';
+import { LimitationsModal } from './components/LimitationsModal';
+import { SystemModal } from './components/SystemModal';
 import './styles/App.css';
 
 export default function App() {
+  // Theme state
+  const [theme, setTheme] = useState<ThemeOption>(() => {
+    return (localStorage.getItem('chereme_theme') as ThemeOption) || 'system';
+  });
+
+  // Caption size state
+  const [captionSize, setCaptionSize] = useState<CaptionSize>(() => {
+    return (localStorage.getItem('chereme_caption_size') as CaptionSize) || 'S';
+  });
+
+  // Confidence threshold state
+  const [confidenceThreshold, setConfidenceThreshold] = useState<number>(() => {
+    const saved = localStorage.getItem('chereme_threshold');
+    return saved ? parseFloat(saved) : 0.40;
+  });
+
+  // Developer stats toggle
+  const [showDebugStats, setShowDebugStats] = useState(false);
+
+  // Modals state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isLimitationsOpen, setIsLimitationsOpen] = useState(false);
+  const [isSystemOpen, setIsSystemOpen] = useState(false);
+
+  // SidePanel active tab state
+  const [sidePanelTab, setSidePanelTab] = useState<'transcript' | 'vocabulary'>('transcript');
+
+  // Display toggles
   const [showOverlay, setShowOverlay] = useState(true);
-  const [isVocabOpen, setIsVocabOpen] = useState(false);
+
+  // Prediction and caption state machine
   const [prediction, setPrediction] = useState<InferenceResult | null>(null);
-  const [history, setHistory] = useState<string[]>([]);
+  const [confirmedCaptions, setConfirmedCaptions] = useState<string[]>([]);
+  const [tentativeCaption, setTentativeCaption] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<TranscriptItem[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const lastAddedWordRef = useRef<string>('');
-  const lastAddedTimeRef = useRef<number>(0);
+  const lastConfirmedWordRef = useRef<string>('');
+  const lastConfirmedTimeRef = useRef<number>(0);
 
-  // 1. Camera Hook
+  // Apply theme to html root element
+  useEffect(() => {
+    localStorage.setItem('chereme_theme', theme);
+    if (theme === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [theme]);
+
+  // Apply caption size preference
+  const handleChangeCaptionSize = (size: CaptionSize) => {
+    setCaptionSize(size);
+    localStorage.setItem('chereme_caption_size', size);
+  };
+
+  // Apply confidence threshold preference
+  const handleChangeThreshold = (val: number) => {
+    setConfidenceThreshold(val);
+    localStorage.setItem('chereme_threshold', val.toString());
+  };
+
+  // Camera hook
   const {
     videoRef,
     isStreaming,
@@ -33,35 +89,59 @@ export default function App() {
     activeDeviceId,
   } = useCamera();
 
-  // 2. ONNX Inference Hook
-  const { isModelReady, isModelLoading, modelError, predict } = useInference();
+  // ONNX inference hook
+  const { isModelReady, modelError, predict } = useInference();
 
-  // 3. Landmark Extraction & Canvas Rendering Hook
+  // Format timestamp helper
+  const getFormattedTime = () => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+
+  // Process incoming frame sequence
   const handleSequenceReady = useCallback(
     async (sequenceData: Float32Array, numFrames: number) => {
       if (!isModelReady) return;
 
       const result = await predict(sequenceData, numFrames);
-      if (result) {
-        setPrediction(result);
+      if (!result) return;
 
-        // If high-confidence prediction detected, append to history (debounced)
-        const top = result.top1;
-        const now = performance.now();
+      setPrediction(result);
+      const top = result.top1;
+      const now = performance.now();
+
+      if (top && top.confidence >= confidenceThreshold) {
+        setTentativeCaption(top.gloss);
+
+        // Keep each new word on screen at least 1.3 seconds (1300ms) before it can be confirmed/replaced
         if (
-          top &&
-          top.confidence >= 0.45 &&
-          (top.gloss !== lastAddedWordRef.current || now - lastAddedTimeRef.current > 2500)
+          top.gloss !== lastConfirmedWordRef.current ||
+          now - lastConfirmedTimeRef.current >= 1300
         ) {
-          lastAddedWordRef.current = top.gloss;
-          lastAddedTimeRef.current = now;
-          setHistory((prev) => [...prev.slice(-15), top.gloss]);
+          lastConfirmedWordRef.current = top.gloss;
+          lastConfirmedTimeRef.current = now;
+
+          // Append to confirmed captions (keeping last 8 words in caption strip)
+          setConfirmedCaptions((prev) => [...prev.slice(-7), top.gloss]);
+          setTentativeCaption(null);
+
+          // Append to side panel transcript
+          const newItem: TranscriptItem = {
+            id: `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+            word: top.gloss,
+            timestamp: getFormattedTime(),
+          };
+          setTranscript((prev) => [...prev.slice(-49), newItem]);
         }
+      } else {
+        setTentativeCaption(null);
       }
     },
-    [isModelReady, predict]
+    [isModelReady, predict, confidenceThreshold]
   );
 
+  // Landmark tracking hook
   const { isMediaPipeReady, isMediaPipeLoading, error: mpError, trackingState } =
     useLandmarks({
       videoRef,
@@ -72,102 +152,134 @@ export default function App() {
       inferenceIntervalMs: 200,
     });
 
-  const handleClearHistory = () => {
-    setHistory([]);
-    lastAddedWordRef.current = '';
+  // Keyboard navigation & shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      const isInput = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select';
+
+      if (e.key === 'Escape') {
+        setIsSettingsOpen(false);
+        setIsLimitationsOpen(false);
+        setIsSystemOpen(false);
+        return;
+      }
+
+      if (isInput) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (isStreaming) {
+          stopCamera();
+        } else {
+          startCamera();
+        }
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        toggleMirror();
+      } else if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        setShowOverlay((v) => !v);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isStreaming, startCamera, stopCamera, toggleMirror]);
+
+  const handleClearTranscript = () => {
+    setTranscript([]);
+    setConfirmedCaptions([]);
+    setTentativeCaption(null);
+    lastConfirmedWordRef.current = '';
   };
 
   return (
-    <div className="app-container">
-      {/* Top Header */}
-      <header className="app-header">
-        <div className="header-left">
-          <div className="logo-badge">ASL</div>
-          <div>
-            <h1 className="header-title">Real-Time Sign Language Recogniser</h1>
-            <p className="header-subtitle">
-              Webcam to live captions • MediaPipe Landmarks + Temporal Convolutional Network
-            </p>
-          </div>
-        </div>
+    <div className="chereme-app">
+      {/* 56px Header */}
+      <Header
+        onOpenVocabulary={() => setSidePanelTab('vocabulary')}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
-        <div className="header-right">
-          <button
-            type="button"
-            className="vocab-nav-btn"
-            onClick={() => setIsVocabOpen(true)}
-          >
-            100-Word Vocabulary
-          </button>
-          <a
-            href="https://github.com/Giancyril/sign-language"
-            target="_blank"
-            rel="noreferrer"
-            className="github-link-btn"
-          >
-            GitHub
-          </a>
-        </div>
-      </header>
+      {/* Dismissible Notice Banner */}
+      <NoticeBanner onOpenLimitations={() => setIsLimitationsOpen(true)} />
 
-      {/* Scope and Disclaimer Alert */}
-      <div className="disclaimer-banner">
-        <span className="disclaimer-tag">RESEARCH PROTOTYPE</span>
-        <span>
-          Recognises <strong>isolated ASL signs</strong> from the WLASL100 vocabulary.
-          Does <em>not</em> translate ASL grammar or facial morphology. All inference runs client-side.
-        </span>
-      </div>
+      {/* Main Grid: Stage (flex) + SidePanel (360-400px) */}
+      <main className="main-stage-grid">
+        <Stage
+          videoRef={videoRef}
+          canvasRef={canvasRef}
+          isStreaming={isStreaming}
+          isLoading={isCameraLoading || isMediaPipeLoading}
+          error={cameraError || mpError || modelError}
+          onStartCamera={() => startCamera()}
+          onStopCamera={stopCamera}
+          isMirrored={isMirrored}
+          onToggleMirror={toggleMirror}
+          showOverlay={showOverlay}
+          onToggleOverlay={() => setShowOverlay((v) => !v)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          trackingState={trackingState}
+          confirmedCaptions={confirmedCaptions}
+          tentativeCaption={tentativeCaption}
+          captionSize={captionSize}
+        />
 
-      {/* Main Grid Content */}
-      <main className="app-main-grid">
-        <div className="grid-left">
-          <CameraView
-            videoRef={videoRef}
-            canvasRef={canvasRef}
-            isStreaming={isStreaming}
-            isLoading={isCameraLoading || isMediaPipeLoading}
-            error={cameraError || mpError || modelError}
-            onStartCamera={() => startCamera()}
-            onStopCamera={stopCamera}
-            isMirrored={isMirrored}
-            onToggleMirror={toggleMirror}
-            showOverlay={showOverlay}
-            onToggleOverlay={() => setShowOverlay((v) => !v)}
-            trackingState={trackingState}
-            devices={devices}
-            activeDeviceId={activeDeviceId}
-            onSelectDevice={(id) => startCamera(id)}
-          />
-        </div>
-
-        <div className="grid-right">
-          <PredictionBanner
-            prediction={prediction}
-            isStreaming={isStreaming}
-            isModelReady={isModelReady && !isModelLoading}
-            history={history}
-            onClearHistory={handleClearHistory}
-            onOpenVocabulary={() => setIsVocabOpen(true)}
-            confidenceThreshold={0.4}
-          />
-        </div>
+        <SidePanel
+          prediction={prediction}
+          confidenceThreshold={confidenceThreshold}
+          transcript={transcript}
+          onClearTranscript={handleClearTranscript}
+          activeTab={sidePanelTab}
+          onTabChange={setSidePanelTab}
+          isStreaming={isStreaming}
+        />
       </main>
 
-      {/* Bottom Status Bar */}
+      {/* 32px Status Bar */}
       <StatusBar
         isStreaming={isStreaming}
         isMediaPipeReady={isMediaPipeReady}
         isModelReady={isModelReady}
+        modelError={modelError}
+        cameraError={cameraError || mpError}
         fps={trackingState.fps}
         latencyMs={prediction?.latencyMs ?? 0}
-        numClasses={NUM_CLASSES}
+        onOpenSystemDetails={() => setIsSystemOpen(true)}
       />
 
-      {/* Vocabulary Modal */}
-      <VocabularyModal
-        isOpen={isVocabOpen}
-        onClose={() => setIsVocabOpen(false)}
+      {/* Dialog Modals */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        devices={devices}
+        activeDeviceId={activeDeviceId}
+        onSelectDevice={(id) => startCamera(id)}
+        confidenceThreshold={confidenceThreshold}
+        onChangeThreshold={handleChangeThreshold}
+        captionSize={captionSize}
+        onChangeCaptionSize={handleChangeCaptionSize}
+        theme={theme}
+        onChangeTheme={setTheme}
+        showDebugStats={showDebugStats}
+        onToggleDebugStats={() => setShowDebugStats((v) => !v)}
+      />
+
+      <LimitationsModal
+        isOpen={isLimitationsOpen}
+        onClose={() => setIsLimitationsOpen(false)}
+      />
+
+      <SystemModal
+        isOpen={isSystemOpen}
+        onClose={() => setIsSystemOpen(false)}
+        isMediaPipeReady={isMediaPipeReady}
+        isModelReady={isModelReady}
+        modelError={modelError}
+        cameraError={cameraError || mpError}
+        fps={trackingState.fps}
+        latencyMs={prediction?.latencyMs ?? 0}
       />
     </div>
   );

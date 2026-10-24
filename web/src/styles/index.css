@@ -1,37 +1,96 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
+﻿/* Design Tokens */
 :root {
-  --bg-primary: #090d16;
-  --bg-surface: #111726;
-  --bg-surface-elevated: #182035;
-  --bg-surface-glass: rgba(17, 23, 38, 0.75);
+  /* Dark Theme (Default) */
+  --bg: #0E1116;
+  --surface: #151A21;
+  --surface-2: #1B2129;
+  --border: #2A323D;
+  --text: #E6EAF0;
+  --text-muted: #9AA6B2;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-text: #6EA0FF;
+  --accent-contrast: #FFFFFF;
 
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(99, 102, 241, 0.35);
+  --status-ok: #34D399;
+  --status-warn: #FBBF24;
+  --status-error: #F87171;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --radius-control: 8px;
+  --radius-panel: 12px;
 
-  --accent-cyan: #06b6d4;
-  --accent-indigo: #6366f1;
-  --accent-violet: #8b5cf6;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-
-  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.15);
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --header-height: 56px;
+  --status-height: 32px;
 }
 
+/* Light Theme via media query */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="high-contrast"]) {
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --surface-2: #EEF1F5;
+    --border: #D5DBE3;
+    --text: #14181F;
+    --text-muted: #566170;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-text: #1D4ED8;
+    --accent-contrast: #FFFFFF;
+  }
+}
+
+/* Explicit Light Theme override */
+[data-theme="light"] {
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-2: #EEF1F5;
+  --border: #D5DBE3;
+  --text: #14181F;
+  --text-muted: #566170;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-text: #1D4ED8;
+  --accent-contrast: #FFFFFF;
+}
+
+/* Explicit Dark Theme override */
+[data-theme="dark"] {
+  --bg: #0E1116;
+  --surface: #151A21;
+  --surface-2: #1B2129;
+  --border: #2A323D;
+  --text: #E6EAF0;
+  --text-muted: #9AA6B2;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-text: #6EA0FF;
+  --accent-contrast: #FFFFFF;
+}
+
+/* High Contrast Theme override */
+[data-theme="high-contrast"] {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #111111;
+  --border: #FFFFFF;
+  --text: #FFFFFF;
+  --text-muted: #E0E0E0;
+  --accent: #FFD400;
+  --accent-hover: #E6BE00;
+  --accent-text: #FFD400;
+  --accent-contrast: #000000;
+}
+
+/* Reset and Base Styles */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -40,25 +99,207 @@
 
 html, body {
   width: 100%;
-  min-height: 100vh;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  height: 100%;
+  min-height: 100dvh;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
+#root {
+  height: 100%;
+}
+
+/* Strict Typography rules: weights 400, 500, 600 only */
+body, button, input, select, textarea {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+/* JetBrains Mono only for numbers, codes, timings */
+.font-mono,
+.mono-val {
+  font-family: var(--font-mono) !important;
+}
+
+/* Non-Negotiable Button Rules:
+   - ZERO box-shadow, glow, text-shadow, or lift in any state
+   - Flat surfaces, no gradients
+   - Height 36px, radius 8px, padding 0 14px
+   - Focus outline 2px solid with 2px offset
+*/
 button {
-  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 36px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  border: none;
-  outline: none;
-  background: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  user-select: none;
+  white-space: nowrap;
 }
 
-input, select {
-  font-family: inherit;
-  outline: none;
+/* Touch targets: 40px on touch devices */
+@media (pointer: coarse) {
+  button {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+  }
+}
+
+/* Focus styles: 2px outline with 2px offset, NEVER a shadow */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  border: 1px solid var(--accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--surface-2);
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Toggle Buttons */
+.btn-toggle {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-toggle:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+.btn-toggle[aria-pressed="true"] {
+  background-color: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.btn-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon Buttons (compact square) */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-control);
+}
+@media (pointer: coarse) {
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Inputs */
+input[type="text"],
+input[type="search"],
+select {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-control);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  box-shadow: none !important;
+  transition: border-color 0.12s ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+select:focus {
+  border-color: var(--accent);
+}
+
+/* Status dots (Strictly for status, never decoration) */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.status-dot.ok {
+  background-color: var(--status-ok);
+}
+.status-dot.warn {
+  background-color: var(--status-warn);
+}
+.status-dot.error {
+  background-color: var(--status-error);
+}
+.status-dot.neutral {
+  background-color: var(--text-muted);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

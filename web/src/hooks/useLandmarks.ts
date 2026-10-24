@@ -182,7 +182,7 @@ export function useLandmarks({
       // Draw Pose Skeleton (upper body subset)
       if (poseLandmarks && poseLandmarks.length > 16) {
         ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(139, 92, 246, 0.7)'; // Violet accent
+        ctx.strokeStyle = 'rgba(154, 166, 178, 0.4)'; // Violet accent
 
         for (const [i1, i2] of POSE_CONNECTIONS) {
           const p1 = poseLandmarks[i1];
@@ -201,11 +201,11 @@ export function useLandmarks({
           if (p && (p.visibility ?? 1) > 0.4) {
             const px = p.x * width;
             const py = p.y * height;
-            ctx.fillStyle = '#a78bfa';
+            ctx.fillStyle = '#9AA6B2';
             ctx.beginPath();
             ctx.arc(px, py, 5, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.strokeStyle = '#ffffff';
+            ctx.strokeStyle = '#151A21';
             ctx.lineWidth = 1.5;
             ctx.stroke();
           }
@@ -252,8 +252,8 @@ export function useLandmarks({
       };
 
       // Draw Left Hand (cyan) & Right Hand (amber / coral)
-      drawHand(leftHand, 'rgba(6, 182, 212, 0.85)', '#22d3ee');
-      drawHand(rightHand, 'rgba(245, 158, 11, 0.85)', '#fbbf24');
+      drawHand(leftHand, 'rgba(37, 99, 235, 0.85)', '#6EA0FF');
+      drawHand(rightHand, 'rgba(37, 99, 235, 0.85)', '#6EA0FF');
     },
     [showOverlay]
   );
