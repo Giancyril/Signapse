@@ -97,7 +97,7 @@ export default function App() {
             className="vocab-nav-btn"
             onClick={() => setIsVocabOpen(true)}
           >
-            📚 100-Word Vocabulary
+            100-Word Vocabulary
           </button>
           <a
             href="https://github.com/Giancyril/sign-language"

@@ -48,7 +48,6 @@ export const PredictionBanner: React.FC<PredictionBannerProps> = ({
         <div className="top1-body">
           {!isStreaming ? (
             <div className="prediction-empty">
-              <span className="empty-icon">🖐️</span>
               <p>Start webcam to begin sign recognition</p>
             </div>
           ) : !isModelReady ? (
@@ -61,9 +60,8 @@ export const PredictionBanner: React.FC<PredictionBannerProps> = ({
               <div className="top1-word-row">
                 <h2 className="top1-gloss">{top1.gloss.toUpperCase()}</h2>
                 <div
-                  className={`confidence-pill ${
-                    isConfident ? 'high' : 'low'
-                  }`}
+                  className={`confidence-pill ${isConfident ? 'high' : 'low'
+                    }`}
                 >
                   {top1.percentage}
                 </div>
@@ -72,9 +70,8 @@ export const PredictionBanner: React.FC<PredictionBannerProps> = ({
               {/* Confidence progress bar */}
               <div className="confidence-track">
                 <div
-                  className={`confidence-fill ${
-                    isConfident ? 'high' : 'low'
-                  }`}
+                  className={`confidence-fill ${isConfident ? 'high' : 'low'
+                    }`}
                   style={{ width: `${Math.min(top1.confidence * 100, 100)}%` }}
                 />
               </div>

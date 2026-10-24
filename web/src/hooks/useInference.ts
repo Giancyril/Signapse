@@ -2,19 +2,16 @@
 import * as ort from 'onnxruntime-web';
 import { LABELS } from '../lib/labels';
 
-// Configure ONNX Runtime Web WASM paths
+// Configure ONNX Runtime Web
+// Use 1 thread and disable proxy worker to avoid browser blob: module restrictions
+ort.env.wasm.numThreads = 1;
+ort.env.wasm.proxy = false;
 ort.env.wasm.wasmPaths = '/';
-// Automatically adapt threads based on crossOriginIsolated state (SharedArrayBuffer support)
-if (typeof crossOriginIsolated !== 'undefined' && !crossOriginIsolated) {
-  ort.env.wasm.numThreads = 1;
-} else {
-  ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4);
-}
 
 export interface TopKPrediction {
   gloss: string;
-  confidence: number; // 0.0 to 1.0
-  percentage: string; // e.g. "94.2%"
+  confidence: number;
+  percentage: string;
 }
 
 export interface InferenceResult {
@@ -125,7 +122,6 @@ export function useInference(modelPath = '/model.onnx'): UseInferenceResult {
 
         const probs = softmax(logits);
 
-        // Sort indices by probability descending
         const indices = Array.from({ length: probs.length }, (_, i) => i);
         indices.sort((a, b) => probs[b] - probs[a]);
 
