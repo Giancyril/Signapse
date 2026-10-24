@@ -4,7 +4,12 @@ import { LABELS } from '../lib/labels';
 
 // Configure ONNX Runtime Web WASM paths
 ort.env.wasm.wasmPaths = '/';
-ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4);
+// Automatically adapt threads based on crossOriginIsolated state (SharedArrayBuffer support)
+if (typeof crossOriginIsolated !== 'undefined' && !crossOriginIsolated) {
+  ort.env.wasm.numThreads = 1;
+} else {
+  ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4);
+}
 
 export interface TopKPrediction {
   gloss: string;
