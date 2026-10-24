@@ -1,0 +1,4 @@
+﻿# Ignore all run artefacts (checkpoints, logs, eval outputs)
+# except this file
+*
+!.gitignore
