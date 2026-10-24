@@ -36,7 +36,7 @@ def export(
     checkpoint_path: str,
     output_path: str,
     label_map_path: str | None = None,
-    opset: int = 17,
+    opset: int = 18,
 ) -> None:
     logging.basicConfig(
         level=logging.INFO,
@@ -66,6 +66,7 @@ def export(
         dynamic_axes={"sequence": {1: "T"}},
         opset_version=opset,
         do_constant_folding=True,
+        dynamo=False,
     )
     log.info("ONNX model exported to %s", out)
 

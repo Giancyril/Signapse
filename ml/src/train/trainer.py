@@ -25,7 +25,13 @@ import torch
 import torch.nn as nn
 from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+try:
+    from torch.utils.tensorboard import SummaryWriter
+except ImportError:
+    class SummaryWriter:
+        def __init__(self, *args, **kwargs): pass
+        def add_scalar(self, *args, **kwargs): pass
+        def close(self): pass
 
 from ml.src.eval.metrics import compute_metrics
 from ml.src.features.dataset import WLASLDataset

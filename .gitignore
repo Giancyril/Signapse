@@ -59,3 +59,9 @@ coverage/
 
 # --- Jupyter -----------------------------------------------------------------
 .ipynb_checkpoints/
+
+*.wasm
+*.task
+web/public/wasm/
+web/public/models/
+

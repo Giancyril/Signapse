@@ -25,8 +25,15 @@ Missing landmarks:
 """
 from __future__ import annotations
 
-import cv2
-import mediapipe as mp
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+
+try:
+    import mediapipe as mp
+except ImportError:
+    mp = None
 import numpy as np
 
 # ---------------------------------------------------------------------------
@@ -61,7 +68,7 @@ _R_SHOULDER_IDX = _POSE_SUBSET.index(12)  # 2
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-mp_holistic = mp.solutions.holistic  # type: ignore[attr-defined]
+mp_holistic = mp.solutions.holistic if mp is not None else None  # type: ignore[attr-defined]
 
 
 def _hand_to_array(hand_landmarks) -> np.ndarray:
