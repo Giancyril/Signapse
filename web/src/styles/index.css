@@ -1,0 +1,22 @@
+/* --- Design tokens -------------------------------------------------------- */
+:root {
+  --clr-bg:        #0d0f14;
+  --clr-surface:   #161b27;
+  --clr-border:    #252d3d;
+  --clr-accent:    #4f8eff;
+  --clr-accent-lo: rgba(79, 142, 255, 0.12);
+  --clr-text:      #e8eaf0;
+  --clr-muted:     #6b7280;
+  --font-sans:     'Inter', system-ui, sans-serif;
+  --radius:        10px;
+}
+
+/* --- Reset ---------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  min-height: 100dvh;
+}

@@ -1,0 +1,75 @@
+/* --- App layout ----------------------------------------------------------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.app-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--clr-accent-lo);
+  color: var(--clr-accent);
+  border: 1px solid var(--clr-accent);
+  border-radius: 999px;
+  padding: 0.2em 0.7em;
+}
+
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.camera-placeholder,
+.prediction-placeholder {
+  background: var(--clr-surface);
+  border: 1px dashed var(--clr-border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 2rem;
+  color: var(--clr-muted);
+  font-size: 0.9rem;
+}
+
+.camera-placeholder {
+  min-height: 480px;
+}
+
+.status {
+  font-size: 0.8rem;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1.25rem 2rem;
+  border-top: 1px solid var(--clr-border);
+  font-size: 0.8rem;
+  color: var(--clr-muted);
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+}

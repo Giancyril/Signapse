@@ -1,0 +1,61 @@
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+MANIFEST
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Node / Web --------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# --- Large data and model artefacts -----------------------------------------
+ml/data/raw/
+ml/data/videos/
+*.mp4
+*.avi
+*.mov
+*.onnx
+*.pt
+*.pth
+*.pkl
+*.npz
+
+# --- IDEs and OS -------------------------------------------------------------
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Logs and coverage -------------------------------------------------------
+*.log
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+*.lcov
+
+# --- Jupyter -----------------------------------------------------------------
+.ipynb_checkpoints/
