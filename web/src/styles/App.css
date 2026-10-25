@@ -1362,3 +1362,157 @@ kbd {
 .match-conf {
   color: var(--text-muted);
 }
+/* Practice Scoreboard Component */
+.practice-scoreboard {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.scoreboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.stat-card {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-icon {
+  flex-shrink: 0;
+}
+.stat-icon.flame { color: #F59E0B; }
+.stat-icon.trophy { color: #EAB308; }
+.stat-icon.award { color: var(--accent-text); }
+.stat-icon.target { color: var(--status-ok); }
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.stat-val-group {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stat-number {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-unit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.session-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  font-size: 12px;
+}
+
+.session-duration {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.session-time-icon {
+  color: var(--text-muted);
+}
+
+.duration-val {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.reset-session-btn {
+  height: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  font-size: 11px;
+  gap: 4px;
+}
+
+.history-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.history-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 16px 8px;
+  background-color: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-control);
+}
+
+.history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: var(--surface-2);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.history-gloss {
+  font-weight: 500;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.history-confidence {
+  font-size: 11px;
+  color: var(--status-ok);
+  font-weight: 600;
+}
