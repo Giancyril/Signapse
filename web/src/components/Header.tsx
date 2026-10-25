@@ -1,12 +1,18 @@
 ﻿import React from 'react';
-import { BookOpen, Settings as SettingsIcon } from 'lucide-react';
+import { BookOpen, Settings as SettingsIcon, Activity, Target } from 'lucide-react';
+
+export type AppMode = 'recognize' | 'practice';
 
 interface HeaderProps {
+  appMode: AppMode;
+  onChangeAppMode: (mode: AppMode) => void;
   onOpenVocabulary: () => void;
   onOpenSettings: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  appMode,
+  onChangeAppMode,
   onOpenVocabulary,
   onOpenSettings,
 }) => {
@@ -20,6 +26,29 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="brand-title">Chereme</span>
           <span className="brand-subtitle">ASL Sign Recognizer</span>
         </div>
+      </div>
+
+      <div className="header-mode-toggle" role="group" aria-label="Application mode">
+        <button
+          type="button"
+          className={`mode-toggle-btn ${appMode === 'recognize' ? 'active' : ''}`}
+          onClick={() => onChangeAppMode('recognize')}
+          aria-pressed={appMode === 'recognize'}
+          title="Live Sign Recognition Mode (P)"
+        >
+          <Activity size={15} strokeWidth={1.75} />
+          <span>Recognize</span>
+        </button>
+        <button
+          type="button"
+          className={`mode-toggle-btn ${appMode === 'practice' ? 'active' : ''}`}
+          onClick={() => onChangeAppMode('practice')}
+          aria-pressed={appMode === 'practice'}
+          title="Interactive Sign Practice Mode (P)"
+        >
+          <Target size={15} strokeWidth={1.75} />
+          <span>Practice</span>
+        </button>
       </div>
 
       <nav className="header-actions" aria-label="Quick actions">

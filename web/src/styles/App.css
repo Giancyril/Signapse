@@ -61,6 +61,47 @@
   color: var(--text-muted);
 }
 
+/* Mode Toggle Segmented Control */
+.header-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 2px;
+  gap: 2px;
+}
+
+.mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  box-shadow: none !important;
+}
+
+.mode-toggle-btn:hover {
+  color: var(--text);
+  background-color: var(--surface);
+}
+
+.mode-toggle-btn.active {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  font-weight: 600;
+}
+
 .header-actions {
   display: flex;
   align-items: center;

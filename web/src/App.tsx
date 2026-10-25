@@ -2,7 +2,7 @@
 import { useCamera } from './hooks/useCamera';
 import { useInference, InferenceResult } from './hooks/useInference';
 import { useLandmarks } from './hooks/useLandmarks';
-import { Header } from './components/Header';
+import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
 import { SidePanel, TranscriptItem } from './components/SidePanel';
@@ -31,6 +31,9 @@ export default function App() {
 
   // Developer stats toggle
   const [showDebugStats, setShowDebugStats] = useState(false);
+
+  // Application Mode state (Recognize vs Practice)
+  const [appMode, setAppMode] = useState<AppMode>('recognize');
 
   // Modals state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -180,6 +183,9 @@ export default function App() {
       } else if (e.key === 'l' || e.key === 'L') {
         e.preventDefault();
         setShowOverlay((v) => !v);
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        setAppMode((prev) => (prev === 'recognize' ? 'practice' : 'recognize'));
       }
     };
 
@@ -198,6 +204,8 @@ export default function App() {
     <div className="chereme-app">
       {/* 56px Header */}
       <Header
+        appMode={appMode}
+        onChangeAppMode={setAppMode}
         onOpenVocabulary={() => setSidePanelTab('vocabulary')}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
