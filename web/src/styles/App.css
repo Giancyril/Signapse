@@ -1223,3 +1223,142 @@ kbd {
   min-height: 32px;
   font-size: 12px;
 }
+/* Hold Progress Ring Component */
+.hold-progress-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 14px 16px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.hold-progress-card.holding {
+  border-color: var(--accent);
+  background-color: var(--surface-2);
+}
+
+.hold-progress-card.celebrating {
+  border-color: var(--status-ok);
+  background-color: rgba(52, 211, 153, 0.05);
+}
+
+.progress-ring-wrapper {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring-svg {
+  transform: rotate(-90deg);
+}
+
+.ring-bar {
+  transition: stroke-dashoffset 0.1s linear, stroke 0.15s ease;
+}
+
+.ring-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-percentage {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ring-icon-check {
+  color: var(--status-ok);
+}
+
+.hold-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hold-status-headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hold-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.hold-badge.idle {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.hold-badge.matched {
+  background-color: rgba(37, 99, 235, 0.12);
+  color: var(--accent-text);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+.hold-badge.active {
+  background-color: rgba(37, 99, 235, 0.18);
+  color: var(--accent-contrast);
+  background: var(--accent);
+}
+.hold-badge.ok {
+  background-color: var(--status-ok);
+  color: #0E1116;
+  font-weight: 700;
+}
+
+.hold-helper-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.highlight-gloss {
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.live-match-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.match-icon {
+  color: var(--text-muted);
+}
+
+.match-val {
+  color: var(--text);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.match-conf {
+  color: var(--text-muted);
+}
