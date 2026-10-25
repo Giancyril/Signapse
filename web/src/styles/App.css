@@ -1516,3 +1516,77 @@ kbd {
   color: var(--status-ok);
   font-weight: 600;
 }
+/* Success Celebration Overlay (Practice Mode) */
+.celebration-badge-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
+  pointer-events: none;
+  animation: celebrationIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes celebrationIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.celebration-badge-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--surface);
+  border: 1px solid var(--status-ok);
+  border-radius: var(--radius-control);
+  padding: 8px 14px;
+}
+
+.celebration-icon {
+  color: var(--status-ok);
+  flex-shrink: 0;
+}
+
+.celebration-text-group {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.celebration-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--status-ok);
+}
+
+.celebration-gloss {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.celebration-streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.streak-flame-icon {
+  color: #F59E0B;
+}
+
+.streak-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: #F59E0B;
+}
