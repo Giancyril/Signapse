@@ -1590,3 +1590,9 @@ kbd {
   font-weight: 600;
   color: #F59E0B;
 }
+/* Practice Stage Footer (underneath video) */
+.practice-stage-footer {
+  padding: 8px 12px;
+  background-color: var(--surface-2);
+  border-top: 1px solid var(--border);
+}

@@ -2,6 +2,9 @@
 import { Copy, Trash2, Search, Check } from 'lucide-react';
 import { InferenceResult } from '../hooks/useInference';
 import { LABELS } from '../lib/labels';
+import { TargetPromptCard } from './TargetPromptCard';
+import { PracticeScoreboard } from './PracticeScoreboard';
+import { PracticeTarget, DifficultyTier, PracticeStats, PracticeFeedback } from '../types/practice';
 
 export interface TranscriptItem {
   id: string;
@@ -17,6 +20,18 @@ interface SidePanelProps {
   activeTab: 'transcript' | 'vocabulary';
   onTabChange: (tab: 'transcript' | 'vocabulary') => void;
   isStreaming: boolean;
+
+  // Practice Mode props
+  appMode?: 'recognize' | 'practice';
+  practiceTarget?: PracticeTarget;
+  practiceDifficulty?: DifficultyTier;
+  onChangePracticeDifficulty?: (tier: DifficultyTier) => void;
+  onSkipPracticeTarget?: () => void;
+  onNextPracticeTarget?: () => void;
+  isHoldingPractice?: boolean;
+  practiceStats?: PracticeStats;
+  practiceHistory?: PracticeFeedback[];
+  onResetPracticeSession?: () => void;
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({
@@ -27,6 +42,16 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   activeTab,
   onTabChange,
   isStreaming,
+  appMode = 'recognize',
+  practiceTarget,
+  practiceDifficulty = 'all',
+  onChangePracticeDifficulty,
+  onSkipPracticeTarget,
+  onNextPracticeTarget,
+  isHoldingPractice = false,
+  practiceStats,
+  practiceHistory = [],
+  onResetPracticeSession,
 }) => {
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState(false);
@@ -65,89 +90,115 @@ export const SidePanel: React.FC<SidePanelProps> = ({
 
   return (
     <aside className="side-panel" aria-label="Sign prediction and vocabulary details">
-      {/* Card 1: Prediction */}
-      <section className="panel-card prediction-card">
-        <div className="card-header">
-          <h2 className="panel-title">Prediction</h2>
-          {isStreaming && top1 && (
-            <span className="mono-val text-muted-small">
-              Threshold: {Math.round(confidenceThreshold * 100)}%
-            </span>
-          )}
-        </div>
+      {/* Card 1: Practice Target Prompt OR Dictation Prediction */}
+      {appMode === 'practice' && practiceTarget ? (
+        <TargetPromptCard
+          target={practiceTarget}
+          difficulty={practiceDifficulty}
+          onChangeDifficulty={onChangePracticeDifficulty ?? (() => {})}
+          onSkip={onSkipPracticeTarget ?? (() => {})}
+          onNext={onNextPracticeTarget ?? (() => {})}
+          isHolding={isHoldingPractice}
+        />
+      ) : (
+        <section className="panel-card prediction-card">
+          <div className="card-header">
+            <h2 className="panel-title">Prediction</h2>
+            {isStreaming && top1 && (
+              <span className="mono-val text-muted-small">
+                Threshold: {Math.round(confidenceThreshold * 100)}%
+              </span>
+            )}
+          </div>
 
-        <div className="prediction-body">
-          {!isStreaming ? (
-            <div className="prediction-idle-state">
-              <span className="idle-label">Waiting for camera</span>
-            </div>
-          ) : top1 ? (
-            <>
-              {/* Primary Top Word */}
-              <div className="prediction-hero-row">
-                <span className="hero-word">
-                  {isConfident ? top1.gloss : 'Not sure'}
-                </span>
-                <span className="mono-val hero-percent">
-                  {top1.percentage}
-                </span>
+          <div className="prediction-body">
+            {!isStreaming ? (
+              <div className="prediction-idle-state">
+                <span className="idle-label">Waiting for camera</span>
               </div>
+            ) : top1 ? (
+              <>
+                {/* Primary Top Word */}
+                <div className="prediction-hero-row">
+                  <span className="hero-word">
+                    {isConfident ? top1.gloss : 'Not sure'}
+                  </span>
+                  <span className="mono-val hero-percent">
+                    {top1.percentage}
+                  </span>
+                </div>
 
-              {/* Top 3 candidate rows with flat 4px bars and vertical tick */}
-              <div className="candidate-rows-container">
-                {top3.map((cand, idx) => {
-                  const widthPct = Math.min(Math.max(cand.confidence * 100, 0), 100);
-                  const thresholdPct = Math.min(Math.max(confidenceThreshold * 100, 0), 100);
+                {/* Top 3 candidate rows with flat 4px bars and vertical tick */}
+                <div className="candidate-rows-container">
+                  {top3.map((cand, idx) => {
+                    const widthPct = Math.min(Math.max(cand.confidence * 100, 0), 100);
+                    const thresholdPct = Math.min(Math.max(confidenceThreshold * 100, 0), 100);
 
-                  return (
-                    <div key={`${cand.gloss}-${idx}`} className="candidate-item">
-                      <div className="candidate-labels">
-                        <span className="candidate-gloss">{cand.gloss}</span>
-                        <span className="mono-val candidate-confidence">
-                          {cand.percentage}
-                        </span>
+                    return (
+                      <div key={`${cand.gloss}-${idx}`} className="candidate-item">
+                        <div className="candidate-labels">
+                          <span className="candidate-gloss">{cand.gloss}</span>
+                          <span className="mono-val candidate-confidence">
+                            {cand.percentage}
+                          </span>
+                        </div>
+
+                        {/* 4px flat bar with threshold vertical tick */}
+                        <div className="candidate-bar-track">
+                          <div
+                            className="candidate-bar-fill"
+                            style={{ width: `${widthPct}%` }}
+                          />
+                          <div
+                            className="candidate-bar-tick"
+                            style={{ left: `${thresholdPct}%` }}
+                            title={`Acceptance threshold (${Math.round(thresholdPct)}%)`}
+                          />
+                        </div>
                       </div>
-
-                      {/* 4px flat bar with threshold vertical tick */}
-                      <div className="candidate-bar-track">
-                        <div
-                          className="candidate-bar-fill"
-                          style={{ width: `${widthPct}%` }}
-                        />
-                        <div
-                          className="candidate-bar-tick"
-                          style={{ left: `${thresholdPct}%` }}
-                          title={`Acceptance threshold (${Math.round(thresholdPct)}%)`}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="prediction-idle-state">
+                <span className="idle-label">Detecting sign gestures...</span>
               </div>
-            </>
-          ) : (
-            <div className="prediction-idle-state">
-              <span className="idle-label">Detecting sign gestures...</span>
-            </div>
-          )}
-        </div>
-      </section>
+            )}
+          </div>
+        </section>
+      )}
 
-      {/* Card 2: Tabs (Transcript / Vocabulary) */}
+      {/* Card 2: Tabs (Transcript / Practice Stats / Vocabulary) */}
       <section className="panel-card tabs-card">
         <div className="tabs-header" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'transcript'}
-            className={`tab-btn ${activeTab === 'transcript' ? 'active' : ''}`}
-            onClick={() => onTabChange('transcript')}
-          >
-            Transcript
-            {transcript.length > 0 && (
-              <span className="tab-badge">{transcript.length}</span>
-            )}
-          </button>
+          {appMode === 'practice' ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab !== 'vocabulary'}
+              className={`tab-btn ${activeTab !== 'vocabulary' ? 'active' : ''}`}
+              onClick={() => onTabChange('transcript')}
+            >
+              Practice Stats
+              {practiceStats && practiceStats.completedCount > 0 && (
+                <span className="tab-badge">{practiceStats.completedCount}</span>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'transcript'}
+              className={`tab-btn ${activeTab === 'transcript' ? 'active' : ''}`}
+              onClick={() => onTabChange('transcript')}
+            >
+              Transcript
+              {transcript.length > 0 && (
+                <span className="tab-badge">{transcript.length}</span>
+              )}
+            </button>
+          )}
 
           <button
             type="button"
@@ -161,63 +212,73 @@ export const SidePanel: React.FC<SidePanelProps> = ({
           </button>
         </div>
 
-        {/* Tab 1: Transcript */}
-        {activeTab === 'transcript' && (
-          <div className="tab-content transcript-tab" role="tabpanel">
-            <div className="transcript-actions">
-              <span className="transcript-count text-muted-small">
-                {transcript.length} {transcript.length === 1 ? 'word' : 'words'}
-              </span>
-              <div className="action-buttons-group">
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={handleCopyTranscript}
-                  disabled={transcript.length === 0}
-                  title="Copy transcript to clipboard"
-                >
-                  {copied ? (
-                    <>
-                      <Check size={14} strokeWidth={1.75} />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} strokeWidth={1.75} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={onClearTranscript}
-                  disabled={transcript.length === 0}
-                  title="Clear transcript"
-                >
-                  <Trash2 size={14} strokeWidth={1.75} />
-                  <span>Clear</span>
-                </button>
+        {/* Tab 1: Practice Stats or Transcript */}
+        {activeTab !== 'vocabulary' && (
+          appMode === 'practice' && practiceStats ? (
+            <div className="tab-content practice-tab" role="tabpanel">
+              <PracticeScoreboard
+                stats={practiceStats}
+                recentHistory={practiceHistory}
+                onResetSession={onResetPracticeSession ?? (() => {})}
+              />
+            </div>
+          ) : (
+            <div className="tab-content transcript-tab" role="tabpanel">
+              <div className="transcript-actions">
+                <span className="transcript-count text-muted-small">
+                  {transcript.length} {transcript.length === 1 ? 'word' : 'words'}
+                </span>
+                <div className="action-buttons-group">
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={handleCopyTranscript}
+                    disabled={transcript.length === 0}
+                    title="Copy transcript to clipboard"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={14} strokeWidth={1.75} />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} strokeWidth={1.75} />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={onClearTranscript}
+                    disabled={transcript.length === 0}
+                    title="Clear transcript"
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} />
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="transcript-scroll-area">
+                {transcript.length > 0 ? (
+                  <ul className="transcript-list">
+                    {transcript.map((item) => (
+                      <li key={item.id} className="transcript-row">
+                        <span className="mono-val transcript-time">{item.timestamp}</span>
+                        <span className="transcript-word">{item.word}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="transcript-empty">
+                    <span>Confirmed signs will be logged here with timestamps.</span>
+                  </div>
+                )}
               </div>
             </div>
-
-            <div className="transcript-scroll-area">
-              {transcript.length > 0 ? (
-                <ul className="transcript-list">
-                  {transcript.map((item) => (
-                    <li key={item.id} className="transcript-row">
-                      <span className="mono-val transcript-time">{item.timestamp}</span>
-                      <span className="transcript-word">{item.word}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="transcript-empty">
-                  <span>Confirmed signs will be logged here with timestamps.</span>
-                </div>
-              )}
-            </div>
-          </div>
+          )
         )}
 
         {/* Tab 2: Vocabulary */}

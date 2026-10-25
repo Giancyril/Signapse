@@ -1,6 +1,9 @@
 ﻿import React from 'react';
 import { VideoOff, FlipHorizontal, Layers, Settings as SettingsIcon, AlertCircle } from 'lucide-react';
 import { LandmarkTrackingState } from '../hooks/useLandmarks';
+import { SuccessCelebration } from './SuccessCelebration';
+import { HoldProgressRing } from './HoldProgressRing';
+import { PracticeTarget, PracticeFeedback } from '../types/practice';
 
 interface StageProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -19,6 +22,16 @@ interface StageProps {
   confirmedCaptions: string[];
   tentativeCaption: string | null;
   captionSize?: 'S' | 'M' | 'L';
+
+  // Practice Mode props
+  appMode?: 'recognize' | 'practice';
+  practiceTarget?: PracticeTarget;
+  holdProgress?: number;
+  isHolding?: boolean;
+  isSuccessCelebrating?: boolean;
+  celebrationFeedback?: PracticeFeedback | null;
+  practiceStreak?: number;
+  currentConfidence?: number;
 }
 
 export const Stage: React.FC<StageProps> = ({
@@ -38,6 +51,14 @@ export const Stage: React.FC<StageProps> = ({
   confirmedCaptions,
   tentativeCaption,
   captionSize = 'S',
+  appMode = 'recognize',
+  practiceTarget,
+  holdProgress = 0,
+  isHolding = false,
+  isSuccessCelebrating = false,
+  celebrationFeedback = null,
+  practiceStreak = 0,
+  currentConfidence = 0,
 }) => {
   // Determine camera state
   const cameraState: 'Off' | 'Starting' | 'Live' | 'Error' = error
@@ -151,6 +172,11 @@ export const Stage: React.FC<StageProps> = ({
           </div>
         )}
 
+        {/* Practice Mode Celebration Badge */}
+        {appMode === 'practice' && (
+          <SuccessCelebration feedback={celebrationFeedback} streak={practiceStreak} />
+        )}
+
         {/* Empty State / Inactive */}
         {!isStreaming && !error && (
           <div className="stage-empty-state">
@@ -193,33 +219,46 @@ export const Stage: React.FC<StageProps> = ({
         )}
       </div>
 
-      {/* Main Caption Strip (directly under video, fixed height for 2 lines) */}
-      <div
-        className={`caption-strip caption-size-${captionSize.toLowerCase()}`}
-        aria-live="polite"
-        aria-atomic="false"
-      >
-        <div className="caption-text-area">
-          {confirmedCaptions.length === 0 && !tentativeCaption ? (
-            <span className="caption-placeholder">
-              Captions appear here when you sign.
-            </span>
-          ) : (
-            <>
-              {confirmedCaptions.map((word, index) => (
-                <span key={`${word}-${index}`} className="caption-word confirmed">
-                  {word}{' '}
-                </span>
-              ))}
-              {tentativeCaption && (
-                <span className="caption-word tentative">
-                  {tentativeCaption}
-                </span>
-              )}
-            </>
-          )}
+      {/* Bottom Area: Practice Hold Ring or Dictation Caption Strip */}
+      {appMode === 'practice' && practiceTarget ? (
+        <div className="practice-stage-footer">
+          <HoldProgressRing
+            progress={holdProgress}
+            isHolding={isHolding}
+            isCelebrating={isSuccessCelebrating}
+            targetGloss={practiceTarget.gloss}
+            currentDetectedGloss={tentativeCaption || (confirmedCaptions.length > 0 ? confirmedCaptions[confirmedCaptions.length - 1] : null)}
+            confidence={currentConfidence}
+          />
         </div>
-      </div>
+      ) : (
+        <div
+          className={`caption-strip caption-size-${captionSize.toLowerCase()}`}
+          aria-live="polite"
+          aria-atomic="false"
+        >
+          <div className="caption-text-area">
+            {confirmedCaptions.length === 0 && !tentativeCaption ? (
+              <span className="caption-placeholder">
+                Captions appear here when you sign.
+              </span>
+            ) : (
+              <>
+                {confirmedCaptions.map((word, index) => (
+                  <span key={`${word}-${index}`} className="caption-word confirmed">
+                    {word}{' '}
+                  </span>
+                ))}
+                {tentativeCaption && (
+                  <span className="caption-word tentative">
+                    {tentativeCaption}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 };

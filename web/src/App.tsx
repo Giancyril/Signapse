@@ -2,6 +2,7 @@
 import { useCamera } from './hooks/useCamera';
 import { useInference, InferenceResult } from './hooks/useInference';
 import { useLandmarks } from './hooks/useLandmarks';
+import { usePracticeEngine } from './hooks/usePracticeEngine';
 import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
@@ -94,6 +95,13 @@ export default function App() {
 
   // ONNX inference hook
   const { isModelReady, modelError, predict } = useInference();
+
+  // Practice Mode engine hook
+  const practiceEngine = usePracticeEngine({
+    confidenceThreshold,
+    prediction,
+    isEnabled: appMode === 'practice' && isStreaming,
+  });
 
   // Format timestamp helper
   const getFormattedTime = () => {
@@ -232,6 +240,14 @@ export default function App() {
           confirmedCaptions={confirmedCaptions}
           tentativeCaption={tentativeCaption}
           captionSize={captionSize}
+          appMode={appMode}
+          practiceTarget={practiceEngine.target}
+          holdProgress={practiceEngine.holdProgress}
+          isHolding={practiceEngine.isHolding}
+          isSuccessCelebrating={practiceEngine.isSuccessCelebrating}
+          celebrationFeedback={practiceEngine.feedback}
+          practiceStreak={practiceEngine.stats.streak}
+          currentConfidence={prediction?.top1?.confidence ?? 0}
         />
 
         <SidePanel
@@ -242,6 +258,16 @@ export default function App() {
           activeTab={sidePanelTab}
           onTabChange={setSidePanelTab}
           isStreaming={isStreaming}
+          appMode={appMode}
+          practiceTarget={practiceEngine.target}
+          practiceDifficulty={practiceEngine.difficulty}
+          onChangePracticeDifficulty={practiceEngine.setDifficulty}
+          onSkipPracticeTarget={practiceEngine.skipTarget}
+          onNextPracticeTarget={practiceEngine.nextTarget}
+          isHoldingPractice={practiceEngine.isHolding}
+          practiceStats={practiceEngine.stats}
+          practiceHistory={practiceEngine.recentHistory}
+          onResetPracticeSession={practiceEngine.resetSession}
         />
       </main>
 
