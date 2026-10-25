@@ -1058,3 +1058,168 @@ kbd {
 .error-val {
   color: var(--status-error);
 }
+/* Target Prompt Card (Practice Mode) */
+.target-prompt-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prompt-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prompt-target-icon {
+  color: var(--accent);
+}
+
+.prompt-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.difficulty-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.difficulty-badge.beginner {
+  background-color: rgba(52, 211, 153, 0.12);
+  color: var(--status-ok);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+.difficulty-badge.intermediate {
+  background-color: rgba(251, 191, 36, 0.12);
+  color: var(--status-warn);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+.difficulty-badge.advanced {
+  background-color: rgba(37, 99, 235, 0.12);
+  color: var(--accent-text);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.category-pill {
+  font-size: 11px;
+  color: var(--text-muted);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.difficulty-segmented-control {
+  display: inline-flex;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 2px;
+  gap: 2px;
+}
+
+.tier-btn {
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+}
+.tier-btn:hover {
+  color: var(--text);
+  background-color: var(--surface);
+}
+.tier-btn.active {
+  background-color: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.prompt-word-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.target-word {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  text-transform: capitalize;
+  line-height: 1.1;
+}
+
+.holding-feedback-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--status-ok);
+  background-color: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.prompt-hint-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.hint-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hint-prefix {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hint-text {
+  color: var(--text-muted);
+}
+
+.prompt-actions-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.prompt-skip-btn {
+  height: 32px;
+  min-height: 32px;
+  font-size: 12px;
+}
