@@ -37,6 +37,27 @@ Each frame is transformed into a compact 1-D vector:
 
 ---
 
+---
+
+## 5-Day Advanced Features Roadmap
+
+| Day | Feature | Status | Key Highlights |
+|:---:|:---|:---:|:---|
+| **1** | **Interactive Sign Trainer & Practice Mode** | Shipped | Curated 100-word difficulty tiers, continuous hold validation, real-time progress ring, streak tracker, and Web Audio feedback. |
+| **2** | **Speech Synthesis & Smart Sentence Builder** | Planned | Web Speech API voice synthesis, gloss-to-English grammar normalizer, and TXT/SRT export. |
+| **3** | **Clip Recording & Landmark Trajectory Inspector** | Planned | Motion capture buffer, 30 FPS slow-motion replay, velocity vector overlay, JSON export. |
+| **4** | **Signer Biometrics & Lighting Diagnostics** | Planned | Left/right dominance calibration, arm-span normalization, real-time illumination quality meter. |
+| **5** | **Hands-Free Air Gesture Navigation** | Planned | Contactless UI control (palm hold, thumbs up, wave gestures to navigate without mouse/keyboard). |
+
+### Day 1 Feature Deep-Dive: Interactive Sign Trainer
+- **Difficulty Tiers**: Filter practice targets by `Beginner`, `Intermediate`, `Advanced`, or `All`.
+- **Target Prompt Cards**: Dynamic gloss challenges with curated signing instructions and contextual cues.
+- **Continuous Hold Validation**: Requires sustaining >= confidence threshold for 700 ms before confirming mastery.
+- **Progress Ring HUD**: SVG-driven real-time hold completion ring showing live candidate match and confidence.
+- **Session Scoreboard**: Tracks Current Streak, Personal Best Streak, Total Completed, and Accuracy percentage.
+- **Audio & Visual Micro-Feedback**: Web Audio sine synthesizer chime and celebratory badge on completion.
+- **Keyboard Shortcut**: Press `P` anytime to toggle between Live Recognition and Practice Mode.
+
 ## 📊 Benchmarks & Performance Targets
 
 ### Live Browser Inference Profile (Client-Side)
