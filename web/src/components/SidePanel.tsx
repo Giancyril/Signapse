@@ -1,10 +1,12 @@
 ﻿import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Copy, Trash2, Search, Check } from 'lucide-react';
+import { Copy, Trash2, Search, Check, FileText, Download, Volume2 } from 'lucide-react';
 import { InferenceResult } from '../hooks/useInference';
 import { LABELS } from '../lib/labels';
 import { TargetPromptCard } from './TargetPromptCard';
 import { PracticeScoreboard } from './PracticeScoreboard';
+import { SentenceBuilderCard } from './SentenceBuilderCard';
 import { PracticeTarget, DifficultyTier, PracticeStats, PracticeFeedback } from '../types/practice';
+import { SentenceSegment } from '../types/speech';
 
 export interface TranscriptItem {
   id: string;
@@ -32,16 +34,30 @@ interface SidePanelProps {
   practiceStats?: PracticeStats;
   practiceHistory?: PracticeFeedback[];
   onResetPracticeSession?: () => void;
+
+  // Sentence Builder & Speech props
+  currentGlosses?: string[];
+  previewSentence?: string;
+  isSpeaking?: boolean;
+  autoSpeak?: boolean;
+  onSpeak?: (text: string) => void;
+  onCommitSentence?: () => void;
+  onClearSentence?: () => void;
+  onRemoveLastGloss?: () => void;
+  onOpenSpeechSettings?: () => void;
+  onCustomEditSentence?: (text: string) => void;
+  onExportTranscript?: (format: 'txt' | 'srt') => void;
+  sentenceHistory?: SentenceSegment[];
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({
-  prediction,
-  confidenceThreshold,
+  prediction: _prediction,
+  confidenceThreshold: _confidenceThreshold,
   transcript,
   onClearTranscript,
   activeTab,
   onTabChange,
-  isStreaming,
+  isStreaming: _isStreaming,
   appMode = 'recognize',
   practiceTarget,
   practiceDifficulty = 'all',
@@ -52,6 +68,18 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   practiceStats,
   practiceHistory = [],
   onResetPracticeSession,
+  currentGlosses = [],
+  previewSentence = '',
+  isSpeaking = false,
+  autoSpeak = true,
+  onSpeak,
+  onCommitSentence,
+  onClearSentence,
+  onRemoveLastGloss,
+  onOpenSpeechSettings,
+  onCustomEditSentence,
+  onExportTranscript,
+  sentenceHistory = [],
 }) => {
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState(false);
@@ -70,10 +98,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onTabChange]);
 
-  const top1 = prediction?.top1;
-  const isConfident = top1 ? top1.confidence >= confidenceThreshold : false;
-  const top3 = prediction?.top5.slice(0, 3) || [];
-
   const filteredLabels = useMemo(() => {
     if (!search.trim()) return LABELS;
     const q = search.toLowerCase();
@@ -81,16 +105,24 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   }, [search]);
 
   const handleCopyTranscript = () => {
-    if (transcript.length === 0) return;
-    const text = transcript.map((t) => `${t.timestamp} ${t.word}`).join('\n');
-    navigator.clipboard.writeText(text);
+    if (sentenceHistory.length > 0) {
+      const text = sentenceHistory.map((s) => `[${s.formattedTime}] ${s.naturalizedText}`).join('\n');
+      navigator.clipboard.writeText(text);
+    } else if (transcript.length > 0) {
+      const text = transcript.map((t) => `${t.timestamp} ${t.word}`).join('\n');
+      navigator.clipboard.writeText(text);
+    } else {
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const hasContent = sentenceHistory.length > 0 || transcript.length > 0;
+
   return (
     <aside className="side-panel" aria-label="Sign prediction and vocabulary details">
-      {/* Card 1: Practice Target Prompt OR Dictation Prediction */}
+      {/* Card 1: Practice Target Prompt OR Smart Sentence Builder */}
       {appMode === 'practice' && practiceTarget ? (
         <TargetPromptCard
           target={practiceTarget}
@@ -101,72 +133,18 @@ export const SidePanel: React.FC<SidePanelProps> = ({
           isHolding={isHoldingPractice}
         />
       ) : (
-        <section className="panel-card prediction-card">
-          <div className="card-header">
-            <h2 className="panel-title">Prediction</h2>
-            {isStreaming && top1 && (
-              <span className="mono-val text-muted-small">
-                Threshold: {Math.round(confidenceThreshold * 100)}%
-              </span>
-            )}
-          </div>
-
-          <div className="prediction-body">
-            {!isStreaming ? (
-              <div className="prediction-idle-state">
-                <span className="idle-label">Waiting for camera</span>
-              </div>
-            ) : top1 ? (
-              <>
-                {/* Primary Top Word */}
-                <div className="prediction-hero-row">
-                  <span className="hero-word">
-                    {isConfident ? top1.gloss : 'Not sure'}
-                  </span>
-                  <span className="mono-val hero-percent">
-                    {top1.percentage}
-                  </span>
-                </div>
-
-                {/* Top 3 candidate rows with flat 4px bars and vertical tick */}
-                <div className="candidate-rows-container">
-                  {top3.map((cand, idx) => {
-                    const widthPct = Math.min(Math.max(cand.confidence * 100, 0), 100);
-                    const thresholdPct = Math.min(Math.max(confidenceThreshold * 100, 0), 100);
-
-                    return (
-                      <div key={`${cand.gloss}-${idx}`} className="candidate-item">
-                        <div className="candidate-labels">
-                          <span className="candidate-gloss">{cand.gloss}</span>
-                          <span className="mono-val candidate-confidence">
-                            {cand.percentage}
-                          </span>
-                        </div>
-
-                        {/* 4px flat bar with threshold vertical tick */}
-                        <div className="candidate-bar-track">
-                          <div
-                            className="candidate-bar-fill"
-                            style={{ width: `${widthPct}%` }}
-                          />
-                          <div
-                            className="candidate-bar-tick"
-                            style={{ left: `${thresholdPct}%` }}
-                            title={`Acceptance threshold (${Math.round(thresholdPct)}%)`}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <div className="prediction-idle-state">
-                <span className="idle-label">Detecting sign gestures...</span>
-              </div>
-            )}
-          </div>
-        </section>
+        <SentenceBuilderCard
+          currentGlosses={currentGlosses}
+          previewSentence={previewSentence}
+          isSpeaking={isSpeaking}
+          autoSpeak={autoSpeak}
+          onSpeak={onSpeak ?? (() => {})}
+          onCommit={onCommitSentence ?? (() => {})}
+          onClear={onClearSentence ?? (() => {})}
+          onRemoveLastGloss={onRemoveLastGloss ?? (() => {})}
+          onOpenSpeechSettings={onOpenSpeechSettings ?? (() => {})}
+          onCustomEdit={onCustomEditSentence ?? (() => {})}
+        />
       )}
 
       {/* Card 2: Tabs (Transcript / Practice Stats / Vocabulary) */}
@@ -194,9 +172,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({
               onClick={() => onTabChange('transcript')}
             >
               Transcript
-              {transcript.length > 0 && (
+              {sentenceHistory.length > 0 ? (
+                <span className="tab-badge">{sentenceHistory.length}</span>
+              ) : transcript.length > 0 ? (
                 <span className="tab-badge">{transcript.length}</span>
-              )}
+              ) : null}
             </button>
           )}
 
@@ -226,43 +206,92 @@ export const SidePanel: React.FC<SidePanelProps> = ({
             <div className="tab-content transcript-tab" role="tabpanel">
               <div className="transcript-actions">
                 <span className="transcript-count text-muted-small">
-                  {transcript.length} {transcript.length === 1 ? 'word' : 'words'}
+                  {sentenceHistory.length > 0
+                    ? `${sentenceHistory.length} ${sentenceHistory.length === 1 ? 'sentence' : 'sentences'}`
+                    : `${transcript.length} ${transcript.length === 1 ? 'word' : 'words'}`}
                 </span>
+
                 <div className="action-buttons-group">
+                  {/* Export TXT */}
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => onExportTranscript?.('txt')}
+                    disabled={!hasContent}
+                    title="Export transcript as text file (.txt)"
+                  >
+                    <FileText size={13} strokeWidth={1.75} />
+                    <span>TXT</span>
+                  </button>
+
+                  {/* Export SRT */}
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => onExportTranscript?.('srt')}
+                    disabled={!hasContent}
+                    title="Export timed subtitles (.srt)"
+                  >
+                    <Download size={13} strokeWidth={1.75} />
+                    <span>SRT</span>
+                  </button>
+
+                  {/* Copy */}
                   <button
                     type="button"
                     className="btn-ghost"
                     onClick={handleCopyTranscript}
-                    disabled={transcript.length === 0}
+                    disabled={!hasContent}
                     title="Copy transcript to clipboard"
                   >
                     {copied ? (
                       <>
-                        <Check size={14} strokeWidth={1.75} />
+                        <Check size={13} strokeWidth={1.75} />
                         <span>Copied</span>
                       </>
                     ) : (
                       <>
-                        <Copy size={14} strokeWidth={1.75} />
+                        <Copy size={13} strokeWidth={1.75} />
                         <span>Copy</span>
                       </>
                     )}
                   </button>
+
+                  {/* Clear */}
                   <button
                     type="button"
                     className="btn-ghost"
                     onClick={onClearTranscript}
-                    disabled={transcript.length === 0}
+                    disabled={!hasContent}
                     title="Clear transcript"
                   >
-                    <Trash2 size={14} strokeWidth={1.75} />
+                    <Trash2 size={13} strokeWidth={1.75} />
                     <span>Clear</span>
                   </button>
                 </div>
               </div>
 
               <div className="transcript-scroll-area">
-                {transcript.length > 0 ? (
+                {sentenceHistory.length > 0 ? (
+                  <ul className="transcript-list sentence-list">
+                    {sentenceHistory.map((s) => (
+                      <li key={s.id} className="transcript-sentence-row">
+                        <div className="sentence-row-top">
+                          <span className="mono-val transcript-time">{s.formattedTime}</span>
+                          <button
+                            type="button"
+                            className="btn-ghost btn-icon replay-speech-btn"
+                            onClick={() => onSpeak?.(s.naturalizedText)}
+                            title="Replay speech audio"
+                          >
+                            <Volume2 size={12} strokeWidth={1.75} />
+                          </button>
+                        </div>
+                        <p className="sentence-row-text">{s.naturalizedText}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : transcript.length > 0 ? (
                   <ul className="transcript-list">
                     {transcript.map((item) => (
                       <li key={item.id} className="transcript-row">
@@ -273,7 +302,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                   </ul>
                 ) : (
                   <div className="transcript-empty">
-                    <span>Confirmed signs will be logged here with timestamps.</span>
+                    <span>Sentences will be logged here as you sign.</span>
                   </div>
                 )}
               </div>

@@ -1881,3 +1881,48 @@ kbd {
   font-size: 12px;
   gap: 6px;
 }
+/* Sentence List in Transcript */
+.sentence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px !important;
+}
+
+.transcript-sentence-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  transition: border-color 0.12s ease;
+}
+.transcript-sentence-row:hover {
+  border-color: var(--accent);
+}
+
+.sentence-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sentence-row-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.replay-speech-btn {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+.replay-speech-btn:hover {
+  color: var(--accent);
+}

@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { BookOpen, Settings as SettingsIcon, Activity, Target } from 'lucide-react';
+import { BookOpen, Settings as SettingsIcon, Activity, Target, Volume2 } from 'lucide-react';
 
 export type AppMode = 'recognize' | 'practice';
 
@@ -8,6 +8,7 @@ interface HeaderProps {
   onChangeAppMode: (mode: AppMode) => void;
   onOpenVocabulary: () => void;
   onOpenSettings: () => void;
+  onOpenSpeechSettings: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   onChangeAppMode,
   onOpenVocabulary,
   onOpenSettings,
+  onOpenSpeechSettings,
 }) => {
   return (
     <header className="app-header">
@@ -52,6 +54,16 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <nav className="header-actions" aria-label="Quick actions">
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={onOpenSpeechSettings}
+          title="Voice Speech & TTS Settings"
+        >
+          <Volume2 size={16} strokeWidth={1.75} />
+          <span>Speech</span>
+        </button>
+
         <button
           type="button"
           className="btn-ghost"

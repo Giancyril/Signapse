@@ -3,14 +3,18 @@ import { useCamera } from './hooks/useCamera';
 import { useInference, InferenceResult } from './hooks/useInference';
 import { useLandmarks } from './hooks/useLandmarks';
 import { usePracticeEngine } from './hooks/usePracticeEngine';
+import { useSpeechSynthesis } from './hooks/useSpeechSynthesis';
+import { useSentenceBuilder } from './hooks/useSentenceBuilder';
 import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
 import { SidePanel, TranscriptItem } from './components/SidePanel';
 import { StatusBar } from './components/StatusBar';
 import { SettingsModal, ThemeOption, CaptionSize } from './components/SettingsModal';
+import { SpeechSettingsModal } from './components/SpeechSettingsModal';
 import { LimitationsModal } from './components/LimitationsModal';
 import { SystemModal } from './components/SystemModal';
+import { downloadTranscriptFile } from './lib/transcriptExporter';
 import './styles/App.css';
 
 export default function App() {
@@ -38,6 +42,7 @@ export default function App() {
 
   // Modals state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSpeechSettingsOpen, setIsSpeechSettingsOpen] = useState(false);
   const [isLimitationsOpen, setIsLimitationsOpen] = useState(false);
   const [isSystemOpen, setIsSystemOpen] = useState(false);
 
@@ -56,6 +61,7 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastConfirmedWordRef = useRef<string>('');
   const lastConfirmedTimeRef = useRef<number>(0);
+  const sessionStartTimeRef = useRef<number>(Date.now());
 
   // Apply theme to html root element
   useEffect(() => {
@@ -95,6 +101,25 @@ export default function App() {
 
   // ONNX inference hook
   const { isModelReady, modelError, predict } = useInference();
+
+  // Speech synthesis hook
+  const {
+    isSpeaking,
+    voices,
+    config: speechConfig,
+    updateConfig: updateSpeechConfig,
+    speak,
+  } = useSpeechSynthesis();
+
+  // Smart Sentence Builder hook
+  const sentenceBuilder = useSentenceBuilder({
+    isEnabled: appMode === 'recognize',
+    onSentenceFinalized: (sentenceText) => {
+      if (speechConfig.autoSpeak && speechConfig.enabled) {
+        speak(sentenceText);
+      }
+    },
+  });
 
   // Practice Mode engine hook
   const practiceEngine = usePracticeEngine({
@@ -137,6 +162,11 @@ export default function App() {
           setConfirmedCaptions((prev) => [...prev.slice(-7), top.gloss]);
           setTentativeCaption(null);
 
+          // Feed into Sentence Builder
+          if (appMode === 'recognize') {
+            sentenceBuilder.addGloss(top.gloss);
+          }
+
           // Append to side panel transcript
           const newItem: TranscriptItem = {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -149,7 +179,7 @@ export default function App() {
         setTentativeCaption(null);
       }
     },
-    [isModelReady, predict, confidenceThreshold]
+    [isModelReady, predict, confidenceThreshold, appMode, sentenceBuilder]
   );
 
   // Landmark tracking hook
@@ -171,6 +201,7 @@ export default function App() {
 
       if (e.key === 'Escape') {
         setIsSettingsOpen(false);
+        setIsSpeechSettingsOpen(false);
         setIsLimitationsOpen(false);
         setIsSystemOpen(false);
         return;
@@ -194,18 +225,31 @@ export default function App() {
       } else if (e.key === 'p' || e.key === 'P') {
         e.preventDefault();
         setAppMode((prev) => (prev === 'recognize' ? 'practice' : 'recognize'));
+      } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        if (sentenceBuilder.previewSentence) {
+          speak(sentenceBuilder.previewSentence);
+        }
+      } else if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        sentenceBuilder.finalizeCurrentSentence();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isStreaming, startCamera, stopCamera, toggleMirror]);
+  }, [isStreaming, startCamera, stopCamera, toggleMirror, sentenceBuilder, speak]);
 
   const handleClearTranscript = () => {
     setTranscript([]);
     setConfirmedCaptions([]);
     setTentativeCaption(null);
     lastConfirmedWordRef.current = '';
+    sentenceBuilder.clearAllSentences();
+  };
+
+  const handleExportTranscript = (format: 'txt' | 'srt') => {
+    downloadTranscriptFile(sentenceBuilder.sentenceHistory, sessionStartTimeRef.current, format);
   };
 
   return (
@@ -216,6 +260,7 @@ export default function App() {
         onChangeAppMode={setAppMode}
         onOpenVocabulary={() => setSidePanelTab('vocabulary')}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSpeechSettings={() => setIsSpeechSettingsOpen(true)}
       />
 
       {/* Dismissible Notice Banner */}
@@ -248,6 +293,8 @@ export default function App() {
           celebrationFeedback={practiceEngine.feedback}
           practiceStreak={practiceEngine.stats.streak}
           currentConfidence={prediction?.top1?.confidence ?? 0}
+          isSpeaking={isSpeaking}
+          previewSentence={sentenceBuilder.previewSentence}
         />
 
         <SidePanel
@@ -268,6 +315,18 @@ export default function App() {
           practiceStats={practiceEngine.stats}
           practiceHistory={practiceEngine.recentHistory}
           onResetPracticeSession={practiceEngine.resetSession}
+          currentGlosses={sentenceBuilder.currentGlosses}
+          previewSentence={sentenceBuilder.previewSentence}
+          isSpeaking={isSpeaking}
+          autoSpeak={speechConfig.autoSpeak}
+          onSpeak={speak}
+          onCommitSentence={sentenceBuilder.finalizeCurrentSentence}
+          onClearSentence={sentenceBuilder.clearActiveBuffer}
+          onRemoveLastGloss={sentenceBuilder.removeLastGloss}
+          onOpenSpeechSettings={() => setIsSpeechSettingsOpen(true)}
+          onCustomEditSentence={sentenceBuilder.setCustomEditedText}
+          onExportTranscript={handleExportTranscript}
+          sentenceHistory={sentenceBuilder.sentenceHistory}
         />
       </main>
 
@@ -298,6 +357,16 @@ export default function App() {
         onChangeTheme={setTheme}
         showDebugStats={showDebugStats}
         onToggleDebugStats={() => setShowDebugStats((v) => !v)}
+      />
+
+      <SpeechSettingsModal
+        isOpen={isSpeechSettingsOpen}
+        onClose={() => setIsSpeechSettingsOpen(false)}
+        config={speechConfig}
+        onUpdateConfig={updateSpeechConfig}
+        voices={voices}
+        onTestVoice={speak}
+        isSpeaking={isSpeaking}
       />
 
       <LimitationsModal

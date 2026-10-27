@@ -3,6 +3,7 @@ import { VideoOff, FlipHorizontal, Layers, Settings as SettingsIcon, AlertCircle
 import { LandmarkTrackingState } from '../hooks/useLandmarks';
 import { SuccessCelebration } from './SuccessCelebration';
 import { HoldProgressRing } from './HoldProgressRing';
+import { SpeakingVisualizer } from './SpeakingVisualizer';
 import { PracticeTarget, PracticeFeedback } from '../types/practice';
 
 interface StageProps {
@@ -32,6 +33,8 @@ interface StageProps {
   celebrationFeedback?: PracticeFeedback | null;
   practiceStreak?: number;
   currentConfidence?: number;
+  isSpeaking?: boolean;
+  previewSentence?: string;
 }
 
 export const Stage: React.FC<StageProps> = ({
@@ -59,6 +62,8 @@ export const Stage: React.FC<StageProps> = ({
   celebrationFeedback = null,
   practiceStreak = 0,
   currentConfidence = 0,
+  isSpeaking = false,
+  previewSentence = '',
 }) => {
   // Determine camera state
   const cameraState: 'Off' | 'Starting' | 'Live' | 'Error' = error
@@ -238,7 +243,12 @@ export const Stage: React.FC<StageProps> = ({
           aria-atomic="false"
         >
           <div className="caption-text-area">
-            {confirmedCaptions.length === 0 && !tentativeCaption ? (
+            {isSpeaking && <SpeakingVisualizer size="sm" />}
+            {previewSentence ? (
+              <span className="caption-word confirmed">
+                {previewSentence}
+              </span>
+            ) : confirmedCaptions.length === 0 && !tentativeCaption ? (
               <span className="caption-placeholder">
                 Captions appear here when you sign.
               </span>
