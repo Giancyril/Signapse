@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Sparkles, Volume2, CornerDownLeft, Trash2, Delete, Settings2, Check, Edit2 } from 'lucide-react';
+import { Volume2, CornerDownLeft, Trash2, Delete, Settings2, Check, Edit2 } from 'lucide-react';
 import { SpeakingVisualizer } from './SpeakingVisualizer';
 
 interface SentenceBuilderCardProps {
@@ -53,7 +53,6 @@ export const SentenceBuilderCard: React.FC<SentenceBuilderCardProps> = ({
       {/* Header */}
       <div className="builder-header">
         <div className="builder-title-group">
-          <Sparkles size={15} strokeWidth={1.75} className="builder-icon" />
           <h2 className="builder-title">Sentence Builder</h2>
           <span className={`builder-tts-badge ${autoSpeak ? 'active' : ''}`}>
             TTS: {autoSpeak ? 'Auto' : 'Manual'}
