@@ -6,6 +6,9 @@ import { usePracticeEngine } from './hooks/usePracticeEngine';
 import { useSpeechSynthesis } from './hooks/useSpeechSynthesis';
 import { useSentenceBuilder } from './hooks/useSentenceBuilder';
 import { useClipRecorder } from './hooks/useClipRecorder';
+import { useLightingDiagnostics } from './hooks/useLightingDiagnostics';
+import { useSignerBiometrics } from './hooks/useSignerBiometrics';
+import { BiometricsCalibrationModal } from './components/BiometricsCalibrationModal';
 import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
@@ -44,6 +47,7 @@ export default function App() {
   // Modals state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSpeechSettingsOpen, setIsSpeechSettingsOpen] = useState(false);
+  const [isBiometricsModalOpen, setIsBiometricsModalOpen] = useState(false);
   const [isLimitationsOpen, setIsLimitationsOpen] = useState(false);
   const [isSystemOpen, setIsSystemOpen] = useState(false);
 
@@ -183,6 +187,10 @@ export default function App() {
     [isModelReady, predict, confidenceThreshold, appMode, sentenceBuilder]
   );
 
+  // Diagnostics & Biometrics hooks
+  const { metrics: lightingMetrics } = useLightingDiagnostics(videoRef, isStreaming);
+  const signerBiometrics = useSignerBiometrics();
+
   // Clip Recorder hook - wired to Stage toolbar and SidePanel Motion Capture tab
   const clipRecorder = useClipRecorder({
     defaultDurationLimitMs: 4000,
@@ -200,6 +208,14 @@ export default function App() {
       isStreaming,
       showOverlay,
       onFrameSequenceReady: handleSequenceReady,
+      onLandmarksReady: (frame) => {
+        if (clipRecorder.isRecording) {
+          clipRecorder.recordFrame(frame);
+        }
+        if (signerBiometrics.isCalibrating) {
+          signerBiometrics.processCalibrationFrame(frame.pose, frame.leftHand, frame.rightHand);
+        }
+      },
       inferenceIntervalMs: 200,
     });
 
@@ -320,6 +336,9 @@ export default function App() {
           recordingElapsedMs={clipRecorder.recordingElapsedMs}
           recordingDurationLimitMs={clipRecorder.durationLimitMs}
           onSelectRecordingDuration={clipRecorder.setDurationLimitMs}
+          lightingMetrics={lightingMetrics}
+          onOpenCalibration={() => setIsBiometricsModalOpen(true)}
+          isCalibrated={signerBiometrics.isCalibrated}
         />
 
         <SidePanel
@@ -397,6 +416,21 @@ export default function App() {
         voices={voices}
         onTestVoice={speak}
         isSpeaking={isSpeaking}
+      />
+
+      <BiometricsCalibrationModal
+        isOpen={isBiometricsModalOpen}
+        onClose={() => setIsBiometricsModalOpen(false)}
+        isStreaming={isStreaming}
+        onStartCamera={startCamera}
+        calibration={signerBiometrics.calibration}
+        isCalibrating={signerBiometrics.isCalibrating}
+        calibrationProgress={signerBiometrics.calibrationProgress}
+        onStartCalibration={signerBiometrics.startCalibration}
+        onCancelCalibration={signerBiometrics.cancelCalibration}
+        onResetCalibration={signerBiometrics.resetCalibration}
+        onUpdateDominance={signerBiometrics.updateDominance}
+        lightingMetrics={lightingMetrics}
       />
 
       <LimitationsModal

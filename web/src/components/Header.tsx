@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { BookOpen, Settings as SettingsIcon, Activity, Target, Volume2 } from 'lucide-react';
+import { BookOpen, Settings as SettingsIcon, Activity, Target, Volume2, UserCheck } from 'lucide-react';
 
 export type AppMode = 'recognize' | 'practice';
 
@@ -9,6 +9,8 @@ interface HeaderProps {
   onOpenVocabulary: () => void;
   onOpenSettings: () => void;
   onOpenSpeechSettings: () => void;
+  onOpenBiometrics?: () => void;
+  isCalibrated?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenVocabulary,
   onOpenSettings,
   onOpenSpeechSettings,
+  onOpenBiometrics,
+  isCalibrated = false,
 }) => {
   return (
     <header className="app-header">
@@ -63,6 +67,18 @@ export const Header: React.FC<HeaderProps> = ({
           <Volume2 size={16} strokeWidth={1.75} />
           <span>Speech</span>
         </button>
+
+        {onOpenBiometrics && (
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={onOpenBiometrics}
+            title="Signer Biometrics & Calibration"
+          >
+            <UserCheck size={16} strokeWidth={1.75} className={isCalibrated ? 'text-accent' : ''} />
+            <span>Biometrics</span>
+          </button>
+        )}
 
         <button
           type="button"
