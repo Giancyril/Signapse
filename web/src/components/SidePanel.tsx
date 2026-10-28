@@ -1,5 +1,9 @@
 ﻿import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Copy, Trash2, Search, Check, FileText, Download, Volume2 } from 'lucide-react';
+import { Copy, Trash2, Search, Check, FileText, Download, Volume2, Clapperboard, Film, X } from 'lucide-react';
+import { RecordedClip, PlaybackSpeed } from '../types/recorder';
+import { ClipTimelineScrubber } from './ClipTimelineScrubber';
+import { LandmarkTrajectoryViewer } from './LandmarkTrajectoryViewer';
+import { extractClipTrajectories } from '../lib/trajectoryEngine';
 import { InferenceResult } from '../hooks/useInference';
 import { LABELS } from '../lib/labels';
 import { TargetPromptCard } from './TargetPromptCard';
@@ -19,8 +23,8 @@ interface SidePanelProps {
   confidenceThreshold: number;
   transcript: TranscriptItem[];
   onClearTranscript: () => void;
-  activeTab: 'transcript' | 'vocabulary';
-  onTabChange: (tab: 'transcript' | 'vocabulary') => void;
+  activeTab: 'transcript' | 'vocabulary' | 'motion';
+  onTabChange: (tab: 'transcript' | 'vocabulary' | 'motion') => void;
   isStreaming: boolean;
 
   // Practice Mode props
@@ -48,6 +52,12 @@ interface SidePanelProps {
   onCustomEditSentence?: (text: string) => void;
   onExportTranscript?: (format: 'txt' | 'srt') => void;
   sentenceHistory?: SentenceSegment[];
+  // Motion Capture / Clip Recorder props
+  recordedClips?: RecordedClip[];
+  activeClip?: RecordedClip | null;
+  onSelectClip?: (clip: RecordedClip) => void;
+  onDeleteClip?: (id: string) => void;
+  onClearAllClips?: () => void;
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({
@@ -80,10 +90,70 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   onCustomEditSentence,
   onExportTranscript,
   sentenceHistory = [],
+  recordedClips = [],
+  activeClip = null,
+  onSelectClip,
+  onDeleteClip,
+  onClearAllClips,
 }) => {
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Motion Capture playback state
+  const [playbackFrameIndex, setPlaybackFrameIndex] = useState(0);
+  const [isPlayingClip, setIsPlayingClip] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1.0);
+  const [isLooping, setIsLooping] = useState(false);
+  const playbackIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Reset playback when active clip changes
+  useEffect(() => {
+    setPlaybackFrameIndex(0);
+    setIsPlayingClip(false);
+    if (playbackIntervalRef.current) {
+      clearInterval(playbackIntervalRef.current);
+      playbackIntervalRef.current = null;
+    }
+  }, [activeClip?.id]);
+
+  // Playback interval
+  useEffect(() => {
+    if (!isPlayingClip || !activeClip || activeClip.frames.length === 0) {
+      if (playbackIntervalRef.current) {
+        clearInterval(playbackIntervalRef.current);
+        playbackIntervalRef.current = null;
+      }
+      return;
+    }
+    const msPerFrame = (1000 / (activeClip.fps || 30)) / playbackSpeed;
+    playbackIntervalRef.current = setInterval(() => {
+      setPlaybackFrameIndex((prev) => {
+        const next = prev + 1;
+        if (next >= activeClip.frames.length) {
+          if (isLooping) return 0;
+          setIsPlayingClip(false);
+          return activeClip.frames.length - 1;
+        }
+        return next;
+      });
+    }, msPerFrame);
+    return () => {
+      if (playbackIntervalRef.current) {
+        clearInterval(playbackIntervalRef.current);
+        playbackIntervalRef.current = null;
+      }
+    };
+  }, [isPlayingClip, activeClip, playbackSpeed, isLooping]);
+
+  // Compute trajectory trails for active clip
+  const clipTrajectories = useMemo(() => {
+    if (!activeClip) return null;
+    return extractClipTrajectories(activeClip);
+  }, [activeClip]);
+
+  // Current frame data for viewer
+  const currentFrame = activeClip?.frames[playbackFrameIndex] ?? null;
 
   // Keyboard shortcut '/' to focus vocabulary search
   useEffect(() => {
@@ -345,6 +415,118 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 )}
               </ul>
             </div>
+          </div>
+        )}
+      {/* Tab 3: Motion Capture / Clip Viewer */}
+        {activeTab === 'motion' && (
+          <div className="tab-content motion-tab" role="tabpanel">
+            {activeClip ? (
+              <div className="motion-tab-viewer">
+                {/* Clip metadata header */}
+                <div className="clip-viewer-header">
+                  <div className="clip-viewer-meta">
+                    <Clapperboard size={14} strokeWidth={1.75} className="clip-meta-icon" />
+                    <span className="clip-meta-name">{activeClip.name}</span>
+                  </div>
+                  <div className="clip-viewer-stats">
+                    <span className="clip-stat mono-val">{activeClip.frameCount} frames</span>
+                    <span className="clip-stat-divider">·</span>
+                    <span className="clip-stat mono-val">{activeClip.fps}fps</span>
+                    <span className="clip-stat-divider">·</span>
+                    <span className="clip-stat mono-val">{(activeClip.durationMs / 1000).toFixed(1)}s</span>
+                  </div>
+                </div>
+
+                {/* Canvas viewer */}
+                <LandmarkTrajectoryViewer
+                  landmarks={currentFrame?.landmarks ?? null}
+                  wristTrails={{
+                    left: clipTrajectories?.leftWrist ?? [],
+                    right: clipTrajectories?.rightWrist ?? [],
+                  }}
+                  currentTimestampMs={currentFrame?.timestamp ?? 0}
+                  showGhostTrails={true}
+                />
+
+                {/* Timeline scrubber */}
+                <ClipTimelineScrubber
+                  currentFrameIndex={playbackFrameIndex}
+                  totalFrames={activeClip.frames.length}
+                  currentTimestampMs={currentFrame?.timestamp ?? 0}
+                  totalDurationMs={activeClip.durationMs}
+                  isPlaying={isPlayingClip}
+                  playbackSpeed={playbackSpeed}
+                  isLooping={isLooping}
+                  onTogglePlay={() => setIsPlayingClip((v) => !v)}
+                  onSeekFrame={setPlaybackFrameIndex}
+                  onStepFrame={(delta) => setPlaybackFrameIndex((prev) => Math.max(0, Math.min(activeClip.frames.length - 1, prev + delta)))}
+                  onChangeSpeed={setPlaybackSpeed}
+                  onToggleLoop={() => setIsLooping((v) => !v)}
+                />
+
+                {/* Velocity stats */}
+                {clipTrajectories && (
+                  <div className="clip-velocity-row">
+                    <span className="clip-vel-label">Peak vel</span>
+                    <span className="clip-vel-value mono-val">{clipTrajectories.maxVelocity.toFixed(2)} u/s</span>
+                    <span className="clip-vel-sep">·</span>
+                    <span className="clip-vel-label">Avg vel</span>
+                    <span className="clip-vel-value mono-val">{clipTrajectories.averageVelocity.toFixed(2)} u/s</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="motion-tab-empty">
+                <Clapperboard size={28} strokeWidth={1.5} className="motion-empty-icon" />
+                <p className="motion-empty-text">No clip selected</p>
+                <span className="motion-empty-sub">
+                  Use <strong>Record Clip</strong> in the toolbar while camera is live to capture a motion sequence.
+                </span>
+              </div>
+            )}
+
+            {/* Clip Library List */}
+            {recordedClips.length > 0 && (
+              <div className="clip-library">
+                <div className="clip-library-header">
+                  <span className="clip-library-title">Recent Clips ({recordedClips.length})</span>
+                  <button
+                    type="button"
+                    className="btn-ghost clip-clear-btn"
+                    onClick={onClearAllClips}
+                    title="Delete all clips"
+                  >
+                    <Trash2 size={12} strokeWidth={1.75} />
+                    Clear all
+                  </button>
+                </div>
+                <ul className="clip-library-list">
+                  {recordedClips.map((clip) => (
+                    <li
+                      key={clip.id}
+                      className={`clip-library-item ${activeClip?.id === clip.id ? 'active' : ''}`}
+                      onClick={() => onSelectClip?.(clip)}
+                    >
+                      <div className="clip-item-info">
+                        <Film size={12} strokeWidth={1.75} className="clip-item-icon" />
+                        <span className="clip-item-name">{clip.name}</span>
+                      </div>
+                      <div className="clip-item-actions">
+                        <span className="clip-item-dur mono-val">{(clip.durationMs / 1000).toFixed(1)}s</span>
+                        <button
+                          type="button"
+                          className="btn-ghost btn-icon clip-delete-btn"
+                          onClick={(e) => { e.stopPropagation(); onDeleteClip?.(clip.id); }}
+                          title="Delete clip"
+                        >
+                          <X size={11} strokeWidth={2} />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </section>

@@ -48,7 +48,7 @@ export default function App() {
   const [isSystemOpen, setIsSystemOpen] = useState(false);
 
   // SidePanel active tab state
-  const [sidePanelTab, setSidePanelTab] = useState<'transcript' | 'vocabulary'>('transcript');
+  const [sidePanelTab, setSidePanelTab] = useState<'transcript' | 'vocabulary' | 'motion'>('transcript');
 
   // Display toggles
   const [showOverlay, setShowOverlay] = useState(true);
@@ -188,6 +188,7 @@ export default function App() {
     defaultDurationLimitMs: 4000,
     onClipFinished: (clip) => {
       console.log('[Chereme] Clip recorded:', clip.name, clip.frameCount, 'frames');
+      setSidePanelTab('motion');
     },
   });
 
@@ -342,6 +343,11 @@ export default function App() {
           onCustomEditSentence={sentenceBuilder.setCustomEditedText}
           onExportTranscript={handleExportTranscript}
           sentenceHistory={sentenceBuilder.sentenceHistory}
+          recordedClips={clipRecorder.recordedClips}
+          activeClip={clipRecorder.activeClip}
+          onSelectClip={clipRecorder.setActiveClip}
+          onDeleteClip={clipRecorder.deleteClip}
+          onClearAllClips={clipRecorder.clearAllClips}
         />
       </main>
 
