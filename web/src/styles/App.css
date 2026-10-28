@@ -2521,3 +2521,183 @@ kbd {
   color: var(--text);
   border-color: var(--border-hover);
 }
+
+/* Lighting Diagnostics & Meter Styles */
+.lighting-meter-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.lighting-meter-compact.lighting-good {
+  color: var(--success);
+  border-color: rgba(34, 197, 94, 0.25);
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+.lighting-meter-compact.lighting-warn {
+  color: var(--warning);
+  border-color: rgba(234, 179, 8, 0.3);
+  background-color: rgba(234, 179, 8, 0.08);
+}
+
+.lighting-meter-compact.lighting-danger {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.lighting-compact-label {
+  white-space: nowrap;
+}
+
+.lighting-meter-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.lighting-meter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 11px;
+}
+
+.lighting-meter-header:hover {
+  background-color: var(--surface-3);
+}
+
+.lighting-meter-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lighting-title-text {
+  font-weight: 500;
+}
+
+.lighting-lum-val {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.lighting-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.lighting-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.lighting-meter-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px 10px 10px;
+  border-top: 1px solid var(--border);
+  background-color: var(--surface-1);
+}
+
+.lighting-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lighting-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.lighting-bar-track {
+  position: relative;
+  height: 6px;
+  background-color: var(--surface-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.lighting-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b, #ef4444);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.lighting-zone-optimal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed rgba(255, 255, 255, 0.4);
+  border-right: 1px dashed rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+.lighting-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background-color: var(--surface-2);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+}
+
+.lighting-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.lighting-stat-label {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.lighting-stat-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.lighting-recommendation {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(234, 179, 8, 0.1);
+  color: var(--warning);
+}
+
+.lighting-recommendation.optimal {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+}
