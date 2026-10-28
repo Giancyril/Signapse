@@ -3042,3 +3042,25 @@ kbd {
 .start-calibration-action {
   margin-top: 8px;
 }
+
+/* Stage Toolbar Calibrated Status Pill */
+.calibrated-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.08);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calibrated-status-pill:hover {
+  background-color: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.5);
+}

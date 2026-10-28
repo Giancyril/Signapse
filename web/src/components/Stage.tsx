@@ -6,6 +6,9 @@ import { HoldProgressRing } from './HoldProgressRing';
 import { SpeakingVisualizer } from './SpeakingVisualizer';
 import { RecordControlBar } from './RecordControlBar';
 import { PracticeTarget, PracticeFeedback } from '../types/practice';
+import { LightingQualityMeter } from './LightingQualityMeter';
+import { LightingMetrics } from '../types/biometrics';
+import { UserCheck } from 'lucide-react';
 
 interface StageProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -43,6 +46,9 @@ interface StageProps {
   recordingElapsedMs?: number;
   recordingDurationLimitMs?: number;
   onSelectRecordingDuration?: (ms: number) => void;
+  lightingMetrics?: LightingMetrics;
+  onOpenCalibration?: () => void;
+  isCalibrated?: boolean;
 }
 
 export const Stage: React.FC<StageProps> = ({
@@ -78,6 +84,9 @@ export const Stage: React.FC<StageProps> = ({
   recordingElapsedMs = 0,
   recordingDurationLimitMs = 4000,
   onSelectRecordingDuration,
+  lightingMetrics,
+  onOpenCalibration,
+  isCalibrated = false,
 }) => {
   // Determine camera state
   const cameraState: 'Off' | 'Starting' | 'Live' | 'Error' = error
@@ -128,6 +137,24 @@ export const Stage: React.FC<StageProps> = ({
             <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }} />
             REC
           </span>
+        )}
+
+        {/* Lighting Quality Meter (live camera only) */}
+        {isStreaming && lightingMetrics && (
+          <LightingQualityMeter metrics={lightingMetrics} compact={true} />
+        )}
+
+        {/* Calibrated Profile status pill */}
+        {isCalibrated && onOpenCalibration && (
+          <button
+            type="button"
+            className="calibrated-status-pill"
+            onClick={onOpenCalibration}
+            title="Biometrics calibrated - Click to view profile"
+          >
+            <UserCheck size={12} className="text-accent" />
+            <span>Calibrated</span>
+          </button>
         )}
 
         <div className="stage-tools">
