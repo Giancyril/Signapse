@@ -2701,3 +2701,344 @@ kbd {
   background-color: rgba(34, 197, 94, 0.1);
   color: var(--success);
 }
+
+/* Biometrics Calibration Modal & Wizard */
+.biometrics-modal {
+  max-width: 540px;
+  width: 95%;
+}
+
+.biometrics-modal-body {
+  padding: 16px 20px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calibration-wizard-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.calibration-steps-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.calib-step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.calib-step-dot span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background-color: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.calib-step-dot label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.calib-step-dot.active span {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.calib-step-dot.active label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.calib-step-dot.done span {
+  border-color: var(--success);
+  background-color: var(--success);
+  color: #fff;
+}
+
+.calib-step-line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--border);
+  margin: 0 8px;
+  margin-bottom: 16px;
+}
+
+.calibration-instruction-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px 20px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.calib-progress-circle-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.calib-progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.calib-circle-bg {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 6;
+}
+
+.calib-circle-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s ease;
+}
+
+.calib-circle-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.calib-percent-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.calib-step-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calib-step-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.calib-step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+.calibration-wizard-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.biometrics-profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.biometrics-lighting-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  color: var(--warning);
+  font-size: 12px;
+}
+
+.calibrated-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-badge-active {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.profile-timestamp {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.profile-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.profile-metric-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+}
+
+.profile-metric-tile .tile-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.profile-metric-tile .tile-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dominance-selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dominance-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.dominance-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.dominance-pill {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface-1);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dominance-pill:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.dominance-pill.active {
+  border-color: var(--accent);
+  background-color: rgba(59, 130, 246, 0.12);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.profile-actions-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.uncalibrated-intro-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  background-color: var(--surface-2);
+}
+
+.uncalibrated-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.uncalib-hero-icon {
+  margin-bottom: 4px;
+}
+
+.uncalibrated-hero h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.uncalibrated-hero p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 440px;
+}
+
+.camera-required-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-3);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.start-calibration-action {
+  margin-top: 8px;
+}
