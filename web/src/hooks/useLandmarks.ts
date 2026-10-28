@@ -10,6 +10,7 @@ import {
   LandmarkPoint,
   POSE_SUBSET,
 } from '../lib/landmarks';
+import { FrameLandmarks } from '../types/recorder';
 
 export interface LandmarkTrackingState {
   hasLeftHand: boolean;
@@ -24,6 +25,7 @@ export interface UseLandmarksOptions {
   isStreaming: boolean;
   showOverlay?: boolean;
   onFrameSequenceReady?: (sequence: Float32Array, numFrames: number) => void;
+  onLandmarksReady?: (landmarks: FrameLandmarks) => void;
   inferenceIntervalMs?: number;
 }
 
@@ -57,6 +59,7 @@ export function useLandmarks({
   isStreaming,
   showOverlay = true,
   onFrameSequenceReady,
+  onLandmarksReady,
   inferenceIntervalMs = 250,
 }: UseLandmarksOptions) {
   const [isMediaPipeLoading, setIsMediaPipeLoading] = useState(true);
@@ -78,6 +81,8 @@ export function useLandmarks({
   const MAX_BUFFER_FRAMES = 60;
   const frameBufferRef = useRef<Float32Array[]>([]);
   const lastInferenceTimeRef = useRef<number>(0);
+  const onLandmarksReadyRef = useRef(onLandmarksReady);
+  onLandmarksReadyRef.current = onLandmarksReady;
   const fpsCountRef = useRef<number>(0);
   const fpsTimeRef = useRef<number>(performance.now());
 
@@ -335,6 +340,15 @@ export function useLandmarks({
             rightHand,
             poseLandmarks
           );
+        }
+
+        // 4. Live landmark callback (for clip recorder)
+        if (onLandmarksReadyRef.current) {
+          onLandmarksReadyRef.current({
+            leftHand: leftHand as import('../types/recorder').LandmarkPoint[] | null,
+            rightHand: rightHand as import('../types/recorder').LandmarkPoint[] | null,
+            pose: poseLandmarks as import('../types/recorder').LandmarkPoint[] | null,
+          });
         }
 
         // 4. Feature sequence packing
