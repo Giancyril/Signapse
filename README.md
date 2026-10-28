@@ -46,7 +46,7 @@ Each frame is transformed into a compact 1-D vector:
 | **1** | **Interactive Sign Trainer & Practice Mode** | Shipped | Curated 100-word difficulty tiers, continuous hold validation, real-time progress ring, streak tracker, and Web Audio feedback. |
 | **2** | **Speech Synthesis & Smart Sentence Builder** | Shipped | Web Speech API voice synthesis, gloss-to-English grammar normalizer, and TXT/SRT export. |
 | **3** | **Clip Recording & Landmark Trajectory Inspector** | Shipped | 30 FPS mocap buffer, slow-motion scrubber (0.25x-1x), velocity vector trajectories, inline renaming, JSON mocap & CSV dataset export. |
-| **4** | **Signer Biometrics & Lighting Diagnostics** | Planned | Left/right dominance calibration, arm-span normalization, real-time illumination quality meter. |
+| **4** | **Signer Biometrics & Lighting Diagnostics** | Shipped | Left/right dominance calibration, arm-span normalization, real-time illumination quality meter. |
 | **5** | **Hands-Free Air Gesture Navigation** | Planned | Contactless UI control (palm hold, thumbs up, wave gestures to navigate without mouse/keyboard). |
 
 ### Day 1 Feature Deep-Dive: Interactive Sign Trainer
@@ -74,6 +74,14 @@ Each frame is transformed into a compact 1-D vector:
 - **Clip Library & Metadata Management**: Timestamped clip history, frame count, FPS, inline renaming on double-click, and delete management.
 - **JSON Mocap & CSV Trajectory Exporters**: Instant client-side download of complete JSON mocap frames or trajectory CSV tables.
 - **Keyboard Shortcuts**: Press `R` to toggle clip recording while the camera is live.
+
+### Day 4 Feature Deep-Dive: Signer Biometrics & Lighting Diagnostics
+- **Lightweight Illumination & Contrast Engine**: ITU-R BT.601 perceptual luminance ($Y$), RMS dynamic contrast, and backlight ratio analyzer.
+- **Lighting Quality HUD Meter**: Real-time status badge (`Good Lighting`, `Dim Light`, `Too Bright`, `Backlit`) with breakdown drawer.
+- **Interactive 3-Step Calibration Wizard**: Step-by-step guidance covering Neutral Posture, Arm Extension Reach, and Hand Dominance detection.
+- **Biometric Landmark Normalization**: Custom scale factor calibration normalizing MediaPipe coordinates to canonical reference body spans.
+- **Left/Right Dominance Adaptation**: Manual or auto-detected primary signing hand customization with persistent profile storage in `localStorage`.
+- **Pre-Calibration Lighting Verification**: Ensures adequate framing illumination before locking in user body proportions.
 
 ## 📊 Benchmarks & Performance Targets
 
