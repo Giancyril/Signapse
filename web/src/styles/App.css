@@ -1926,3 +1926,138 @@ kbd {
 .replay-speech-btn:hover {
   color: var(--accent);
 }
+/* Record Control Bar Component */
+.record-control-bar {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 2px 4px;
+  transition: all 0.15s ease;
+}
+
+.record-control-bar.recording {
+  border-color: var(--status-error);
+  background-color: rgba(248, 113, 113, 0.08);
+}
+
+.idle-recording-view,
+.active-recording-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-rec-btn {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  gap: 6px;
+  border-color: transparent;
+  background-color: transparent;
+}
+.start-rec-btn:hover:not(:disabled) {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+.rec-dot-icon {
+  color: #EF4444;
+  fill: #EF4444;
+}
+
+.duration-pill-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding-left: 4px;
+  border-left: 1px solid var(--border);
+}
+
+.timer-icon {
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.duration-pill-btn {
+  height: 22px;
+  min-height: 22px;
+  padding: 0 6px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+}
+.duration-pill-btn:hover {
+  color: var(--text);
+  background-color: var(--surface);
+}
+.duration-pill-btn.active {
+  background-color: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Active Recording Indicator */
+.recording-indicator-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.recording-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #EF4444;
+  animation: pulseDot 1s infinite alternate;
+}
+
+@keyframes pulseDot {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.recording-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #EF4444;
+  letter-spacing: 0.05em;
+}
+
+.recording-timer {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.recording-progress-track {
+  width: 60px;
+  height: 4px;
+  background-color: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.recording-progress-bar {
+  height: 100%;
+  background-color: #EF4444;
+  transition: width 0.05s linear;
+}
+
+.stop-rec-btn {
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+  gap: 4px;
+  border-color: rgba(248, 113, 113, 0.4);
+  color: var(--text);
+}
+.stop-rec-btn:hover {
+  background-color: var(--surface);
+}
