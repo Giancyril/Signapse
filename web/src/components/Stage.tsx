@@ -122,6 +122,14 @@ export const Stage: React.FC<StageProps> = ({
           <span className="camera-status-label">{cameraState}</span>
         </div>
 
+        {/* Live REC chip */}
+        {isRecording && (
+          <span className="recording-status-chip" aria-live="polite">
+            <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#EF4444', display: 'inline-block' }} />
+            REC
+          </span>
+        )}
+
         <div className="stage-tools">
           {isStreaming && (
             <button
