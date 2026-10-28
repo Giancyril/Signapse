@@ -4,6 +4,7 @@ import { RecordedClip, PlaybackSpeed } from '../types/recorder';
 import { ClipTimelineScrubber } from './ClipTimelineScrubber';
 import { LandmarkTrajectoryViewer } from './LandmarkTrajectoryViewer';
 import { extractClipTrajectories } from '../lib/trajectoryEngine';
+import { downloadClipFile } from '../lib/clipExporter';
 import { InferenceResult } from '../hooks/useInference';
 import { LABELS } from '../lib/labels';
 import { TargetPromptCard } from './TargetPromptCard';
@@ -476,6 +477,28 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                     <span className="clip-vel-value mono-val">{clipTrajectories.averageVelocity.toFixed(2)} u/s</span>
                   </div>
                 )}
+
+                {/* Clip Export Actions */}
+                <div className="clip-export-row">
+                  <button
+                    type="button"
+                    className="clip-export-btn"
+                    onClick={() => downloadClipFile(activeClip, 'json')}
+                    title="Export full landmark capture as JSON"
+                  >
+                    <Download size={13} strokeWidth={1.75} />
+                    <span>Export JSON</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="clip-export-btn"
+                    onClick={() => downloadClipFile(activeClip, 'csv')}
+                    title="Export wrist trajectory data as CSV"
+                  >
+                    <FileText size={13} strokeWidth={1.75} />
+                    <span>Export CSV</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="motion-tab-empty">

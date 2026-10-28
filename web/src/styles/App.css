@@ -2490,3 +2490,34 @@ kbd {
     display: none;
   }
 }
+
+/* Clip Export Actions in Motion tab */
+.clip-export-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.clip-export-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clip-export-btn:hover {
+  background-color: var(--surface-3);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
