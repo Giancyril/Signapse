@@ -2458,3 +2458,35 @@ kbd {
   color: var(--text);
   outline: none;
 }
+
+/* Status bar keyboard shortcut hints */
+.status-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.shortcut-hint {
+  cursor: default;
+  transition: opacity 0.1s ease;
+}
+
+.shortcut-hint:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
+.shortcut-sep {
+  opacity: 0.4;
+}
+
+@media (max-width: 900px) {
+  .status-shortcuts {
+    display: none;
+  }
+}

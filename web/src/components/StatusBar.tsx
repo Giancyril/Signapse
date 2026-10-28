@@ -55,6 +55,20 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         </button>
       </div>
 
+      <div className="status-shortcuts" aria-label="Keyboard shortcuts">
+        <span className="shortcut-hint" title="Space = Toggle camera">Space</span>
+        <span className="shortcut-sep">·</span>
+        <span className="shortcut-hint" title="R = Toggle recording">R record</span>
+        <span className="shortcut-sep">·</span>
+        <span className="shortcut-hint" title="S = Speak sentence">S speak</span>
+        <span className="shortcut-sep">·</span>
+        <span className="shortcut-hint" title="P = Toggle practice mode">P practice</span>
+        <span className="shortcut-sep">·</span>
+        <span className="shortcut-hint" title="M = Mirror video">M mirror</span>
+        <span className="shortcut-sep">·</span>
+        <span className="shortcut-hint" title="L = Landmarks overlay">L overlay</span>
+      </div>
+
       <div className="status-right">
         {/* FPS and latency shown ONLY while camera is live */}
         {isStreaming && (
