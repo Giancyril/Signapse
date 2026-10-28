@@ -24,17 +24,17 @@ import './styles/App.css';
 export default function App() {
   // Theme state
   const [theme, setTheme] = useState<ThemeOption>(() => {
-    return (localStorage.getItem('chereme_theme') as ThemeOption) || 'system';
+    return (localStorage.getItem('signapse_theme') as ThemeOption) || (localStorage.getItem('chereme_theme') as ThemeOption) || 'system';
   });
 
   // Caption size state
   const [captionSize, setCaptionSize] = useState<CaptionSize>(() => {
-    return (localStorage.getItem('chereme_caption_size') as CaptionSize) || 'S';
+    return (localStorage.getItem('signapse_caption_size') as CaptionSize) || (localStorage.getItem('chereme_caption_size') as CaptionSize) || 'S';
   });
 
   // Confidence threshold state
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(() => {
-    const saved = localStorage.getItem('chereme_threshold');
+    const saved = localStorage.getItem('signapse_threshold') || localStorage.getItem('chereme_threshold');
     return saved ? parseFloat(saved) : 0.40;
   });
 
@@ -70,7 +70,7 @@ export default function App() {
 
   // Apply theme to html root element
   useEffect(() => {
-    localStorage.setItem('chereme_theme', theme);
+    localStorage.setItem('signapse_theme', theme);
     if (theme === 'system') {
       document.documentElement.removeAttribute('data-theme');
     } else {
@@ -81,13 +81,13 @@ export default function App() {
   // Apply caption size preference
   const handleChangeCaptionSize = (size: CaptionSize) => {
     setCaptionSize(size);
-    localStorage.setItem('chereme_caption_size', size);
+    localStorage.setItem('signapse_caption_size', size);
   };
 
   // Apply confidence threshold preference
   const handleChangeThreshold = (val: number) => {
     setConfidenceThreshold(val);
-    localStorage.setItem('chereme_threshold', val.toString());
+    localStorage.setItem('signapse_threshold', val.toString());
   };
 
   // Camera hook
@@ -195,7 +195,7 @@ export default function App() {
   const clipRecorder = useClipRecorder({
     defaultDurationLimitMs: 4000,
     onClipFinished: (clip) => {
-      console.log('[Chereme] Clip recorded:', clip.name, clip.frameCount, 'frames');
+      console.log('[Signapse] Clip recorded:', clip.name, clip.frameCount, 'frames');
       setSidePanelTab('motion');
     },
   });
@@ -288,7 +288,7 @@ export default function App() {
   };
 
   return (
-    <div className="chereme-app">
+    <div className="signapse-app">
       {/* 56px Header */}
       <Header
         appMode={appMode}
@@ -451,3 +451,4 @@ export default function App() {
     </div>
   );
 }
+

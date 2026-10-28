@@ -1,4 +1,4 @@
-﻿# Chereme: Real-Time Isolated ASL Recognition System
+﻿# Signapse: Real-Time Isolated ASL Recognition System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
@@ -445,3 +445,4 @@ npm run build
 ## License & Citations
 - **Code**: MIT License
 - **Dataset**: WLASL (Word-Level American Sign Language) dataset (Li et al., 2020)
+

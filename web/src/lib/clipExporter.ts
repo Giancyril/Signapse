@@ -10,7 +10,7 @@ import { RecordedClip } from '../types/recorder';
 export function exportClipToJson(clip: RecordedClip): string {
   const exportPayload = {
     schemaVersion: '1.0',
-    generator: 'Chereme ASL Motion Capture Engine',
+    generator: 'Signapse ASL Motion Capture Engine',
     clip: {
       id: clip.id,
       name: clip.name,
@@ -43,7 +43,7 @@ export function exportClipToCsv(clip: RecordedClip): string {
   const lines: string[] = [];
 
   // Metadata comments
-  lines.push('# Chereme ASL Landmark Motion Capture Trajectory');
+  lines.push('# Signapse ASL Landmark Motion Capture Trajectory');
   lines.push(`# Clip: ${clip.name}`);
   lines.push(`# RecordedAt: ${new Date(clip.recordedAt).toISOString()}`);
   lines.push(`# DurationMs: ${clip.durationMs}`);
@@ -119,3 +119,4 @@ export function downloadClipFile(clip: RecordedClip, format: 'json' | 'csv' = 'j
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+

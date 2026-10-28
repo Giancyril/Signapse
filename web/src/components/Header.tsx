@@ -26,10 +26,10 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="app-header">
       <div className="header-brand">
         <div className="brand-mark" aria-hidden="true">
-          <span>C</span>
+          <span>S</span>
         </div>
         <div className="brand-text">
-          <span className="brand-title">Chereme</span>
+          <span className="brand-title">Signapse</span>
           <span className="brand-subtitle">ASL Sign Recognizer</span>
         </div>
       </div>
@@ -117,3 +117,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

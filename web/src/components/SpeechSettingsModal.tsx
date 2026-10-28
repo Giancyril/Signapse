@@ -157,7 +157,7 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
           <button
             type="button"
             className="btn-secondary test-voice-btn"
-            onClick={() => onTestVoice('Chereme speech synthesis is active and ready.')}
+            onClick={() => onTestVoice('Signapse speech synthesis is active and ready.')}
             disabled={isSpeaking}
             title="Play sample speech voice test"
           >

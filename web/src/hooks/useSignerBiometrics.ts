@@ -18,13 +18,13 @@ import {
   applyBiometricNormalization,
 } from '../lib/biometricsEngine';
 
-const STORAGE_KEY = 'chereme_signer_calibration';
+const STORAGE_KEY = 'signapse_signer_calibration';
 
 export function useSignerBiometrics() {
   const [calibration, setCalibration] = useState<BiometricCalibrationProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('chereme_signer_calibration');
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -236,4 +236,5 @@ export function useSignerBiometrics() {
     normalizePoints,
   };
 }
+
 

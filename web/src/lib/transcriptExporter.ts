@@ -21,7 +21,7 @@ function formatSrtTimestamp(ms: number): string {
  */
 export function generateTxtTranscript(sentences: SentenceSegment[]): string {
   const dateStr = new Date().toLocaleDateString();
-  const header = `# Chereme ASL Recognition Transcript\n# Date: ${dateStr}\n# Total Sentences: ${sentences.length}\n\n`;
+  const header = `# Signapse ASL Recognition Transcript\n# Date: ${dateStr}\n# Total Sentences: ${sentences.length}\n\n`;
 
   const lines = sentences.map((s) => `[${s.formattedTime}] ${s.naturalizedText}`);
   return header + lines.join('\n');
@@ -61,11 +61,11 @@ export function downloadTranscriptFile(
 
   if (format === 'srt') {
     content = generateSrtSubtitles(sentences, sessionStartTime);
-    filename = `chereme_asl_captions_${timestamp}.srt`;
+    filename = `signapse_asl_captions_${timestamp}.srt`;
     mimeType = 'text/plain;charset=utf-8';
   } else {
     content = generateTxtTranscript(sentences);
-    filename = `chereme_asl_transcript_${timestamp}.txt`;
+    filename = `signapse_asl_transcript_${timestamp}.txt`;
     mimeType = 'text/plain;charset=utf-8';
   }
 
