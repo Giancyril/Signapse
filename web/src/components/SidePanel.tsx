@@ -101,6 +101,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Motion Capture playback state
+  const [renamingClipId, setRenamingClipId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const [playbackFrameIndex, setPlaybackFrameIndex] = useState(0);
   const [isPlayingClip, setIsPlayingClip] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1.0);
@@ -509,7 +511,32 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                     >
                       <div className="clip-item-info">
                         <Film size={12} strokeWidth={1.75} className="clip-item-icon" />
-                        <span className="clip-item-name">{clip.name}</span>
+                        {renamingClipId === clip.id ? (
+                          <input
+                            className="clip-rename-input"
+                            value={renameValue}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onBlur={() => setRenamingClipId(null)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') setRenamingClipId(null);
+                              if (e.key === 'Escape') setRenamingClipId(null);
+                            }}
+                          />
+                        ) : (
+                          <span
+                            className="clip-item-name"
+                            title="Double-click to rename"
+                            onDoubleClick={(e) => {
+                              e.stopPropagation();
+                              setRenamingClipId(clip.id);
+                              setRenameValue(clip.name);
+                            }}
+                          >
+                            {clip.name}
+                          </span>
+                        )}
                       </div>
                       <div className="clip-item-actions">
                         <span className="clip-item-dur mono-val">{(clip.durationMs / 1000).toFixed(1)}s</span>
