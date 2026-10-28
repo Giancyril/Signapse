@@ -5,6 +5,7 @@ import { useLandmarks } from './hooks/useLandmarks';
 import { usePracticeEngine } from './hooks/usePracticeEngine';
 import { useSpeechSynthesis } from './hooks/useSpeechSynthesis';
 import { useSentenceBuilder } from './hooks/useSentenceBuilder';
+import { useClipRecorder } from './hooks/useClipRecorder';
 import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
@@ -182,6 +183,14 @@ export default function App() {
     [isModelReady, predict, confidenceThreshold, appMode, sentenceBuilder]
   );
 
+  // Clip Recorder hook - wired to Stage toolbar and SidePanel Motion Capture tab
+  const clipRecorder = useClipRecorder({
+    defaultDurationLimitMs: 4000,
+    onClipFinished: (clip) => {
+      console.log('[Chereme] Clip recorded:', clip.name, clip.frameCount, 'frames');
+    },
+  });
+
   // Landmark tracking hook
   const { isMediaPipeReady, isMediaPipeLoading, error: mpError, trackingState } =
     useLandmarks({
@@ -295,6 +304,12 @@ export default function App() {
           currentConfidence={prediction?.top1?.confidence ?? 0}
           isSpeaking={isSpeaking}
           previewSentence={sentenceBuilder.previewSentence}
+          isRecording={clipRecorder.isRecording}
+          onStartRecording={clipRecorder.startRecording}
+          onStopRecording={clipRecorder.stopRecording}
+          recordingElapsedMs={clipRecorder.recordingElapsedMs}
+          recordingDurationLimitMs={clipRecorder.durationLimitMs}
+          onSelectRecordingDuration={clipRecorder.setDurationLimitMs}
         />
 
         <SidePanel

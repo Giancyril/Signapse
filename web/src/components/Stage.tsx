@@ -4,6 +4,7 @@ import { LandmarkTrackingState } from '../hooks/useLandmarks';
 import { SuccessCelebration } from './SuccessCelebration';
 import { HoldProgressRing } from './HoldProgressRing';
 import { SpeakingVisualizer } from './SpeakingVisualizer';
+import { RecordControlBar } from './RecordControlBar';
 import { PracticeTarget, PracticeFeedback } from '../types/practice';
 
 interface StageProps {
@@ -35,6 +36,13 @@ interface StageProps {
   currentConfidence?: number;
   isSpeaking?: boolean;
   previewSentence?: string;
+  // Recording props
+  isRecording?: boolean;
+  onStartRecording?: (limitMs?: number) => void;
+  onStopRecording?: () => void;
+  recordingElapsedMs?: number;
+  recordingDurationLimitMs?: number;
+  onSelectRecordingDuration?: (ms: number) => void;
 }
 
 export const Stage: React.FC<StageProps> = ({
@@ -64,6 +72,12 @@ export const Stage: React.FC<StageProps> = ({
   currentConfidence = 0,
   isSpeaking = false,
   previewSentence = '',
+  isRecording = false,
+  onStartRecording,
+  onStopRecording,
+  recordingElapsedMs = 0,
+  recordingDurationLimitMs = 4000,
+  onSelectRecordingDuration,
 }) => {
   // Determine camera state
   const cameraState: 'Off' | 'Starting' | 'Live' | 'Error' = error
@@ -152,6 +166,19 @@ export const Stage: React.FC<StageProps> = ({
           >
             <SettingsIcon size={16} strokeWidth={1.75} />
           </button>
+
+          {/* Record Clip control - only shown when camera is live */}
+          {isStreaming && (
+            <RecordControlBar
+              isRecording={isRecording}
+              elapsedMs={recordingElapsedMs}
+              durationLimitMs={recordingDurationLimitMs}
+              isStreaming={isStreaming}
+              onStartRecording={onStartRecording ?? (() => {})}
+              onStopRecording={onStopRecording ?? (() => {})}
+              onSelectDuration={onSelectRecordingDuration ?? (() => {})}
+            />
+          )}
         </div>
       </div>
 
