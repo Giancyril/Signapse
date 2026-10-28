@@ -1,5 +1,11 @@
 ﻿# Chereme: Real-Time Isolated ASL Recognition System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Tasks%20Vision-0078d4.svg)](https://developers.google.com/mediapipe)
+[![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-Web-brightgreen.svg)](https://onnxruntime.ai/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+
 A production-grade, client-side, deep-learning-augmented American Sign Language (ASL) platform designed for accessible communication, gesture recognition, and interactive signer education. Features 100-word WLASL vocabulary classification via Temporal Convolutional Networks (TCN) running 100% locally in ONNX Runtime Web, real-time 30 FPS MediaPipe pose & hand landmark tracking, zero-server privacy-first offline execution (WASM + WebGPU/WebGL), an Interactive Sign Trainer & Practice Mode with hold validation, streak tracking, and Web Audio synthesizers, Smart Sentence Builder with real-time gloss-to-English grammar synthesis, Web Speech API voice synthesis, Motion Capture recording engine with frame-by-frame scrubbing and landmark trajectory inspection, client-side SRT subtitle and CSV/JSON mocap exporters, Signer Biometrics with posture and arm-span normalization, real-time ITU-R BT.601 lighting diagnostics, responsive dark glassmorphic UI, and full keyboard accessibility.
 
 > **Scope & Honest Framing**:  
