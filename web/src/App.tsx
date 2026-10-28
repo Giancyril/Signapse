@@ -243,12 +243,21 @@ export default function App() {
       } else if (e.key === 'c' || e.key === 'C') {
         e.preventDefault();
         sentenceBuilder.finalizeCurrentSentence();
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        if (isStreaming) {
+          if (clipRecorder.isRecording) {
+            clipRecorder.stopRecording();
+          } else {
+            clipRecorder.startRecording();
+          }
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isStreaming, startCamera, stopCamera, toggleMirror, sentenceBuilder, speak]);
+  }, [isStreaming, startCamera, stopCamera, toggleMirror, sentenceBuilder, speak, clipRecorder]);
 
   const handleClearTranscript = () => {
     setTranscript([]);
