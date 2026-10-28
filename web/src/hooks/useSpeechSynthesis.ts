@@ -18,7 +18,7 @@ export function useSpeechSynthesis() {
 
   const [config, setConfigState] = useState<SpeechConfig>(() => {
     try {
-      const saved = localStorage.getItem('signapse_speech_config') || localStorage.getItem('chereme_speech_config');
+      const saved = localStorage.getItem('signapse_speech_config');
       if (saved) {
         return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
       }
@@ -170,3 +170,4 @@ export function useSpeechSynthesis() {
     resume,
   };
 }
+

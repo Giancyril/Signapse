@@ -1,5 +1,5 @@
 ﻿/* Layout Container (Fits 1366x768 with 100dvh, zero page scroll) */
-.signapse-app, .chereme-app {
+.signapse-app {
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -191,7 +191,7 @@
 }
 
 @media (max-width: 1024px) {
-  .signapse-app, .chereme-app {
+  .signapse-app {
     overflow-y: auto;
     height: auto;
     min-height: 100dvh;
@@ -3064,4 +3064,5 @@ kbd {
   background-color: rgba(59, 130, 246, 0.16);
   border-color: rgba(59, 130, 246, 0.5);
 }
+
 

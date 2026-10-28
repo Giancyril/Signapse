@@ -9,7 +9,7 @@ export const NoticeBanner: React.FC<NoticeBannerProps> = ({ onOpenLimitations })
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    const isDismissed = (localStorage.getItem('signapse_dismiss_notice') || localStorage.getItem('chereme_dismiss_notice'));
+    const isDismissed = localStorage.getItem('signapse_dismiss_notice');
     if (!isDismissed) {
       setDismissed(false);
     }
@@ -49,3 +49,4 @@ export const NoticeBanner: React.FC<NoticeBannerProps> = ({ onOpenLimitations })
     </aside>
   );
 };
+

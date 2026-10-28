@@ -24,17 +24,17 @@ import './styles/App.css';
 export default function App() {
   // Theme state
   const [theme, setTheme] = useState<ThemeOption>(() => {
-    return (localStorage.getItem('signapse_theme') as ThemeOption) || (localStorage.getItem('chereme_theme') as ThemeOption) || 'system';
+    return (localStorage.getItem('signapse_theme') as ThemeOption) || 'system';
   });
 
   // Caption size state
   const [captionSize, setCaptionSize] = useState<CaptionSize>(() => {
-    return (localStorage.getItem('signapse_caption_size') as CaptionSize) || (localStorage.getItem('chereme_caption_size') as CaptionSize) || 'S';
+    return (localStorage.getItem('signapse_caption_size') as CaptionSize) || 'S';
   });
 
   // Confidence threshold state
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(() => {
-    const saved = localStorage.getItem('signapse_threshold') || localStorage.getItem('chereme_threshold');
+    const saved = localStorage.getItem('signapse_threshold');
     return saved ? parseFloat(saved) : 0.40;
   });
 
@@ -451,4 +451,5 @@ export default function App() {
     </div>
   );
 }
+
 

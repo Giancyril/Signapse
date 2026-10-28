@@ -24,7 +24,7 @@ export function useSignerBiometrics() {
   const [calibration, setCalibration] = useState<BiometricCalibrationProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
-      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('chereme_signer_calibration');
+      const saved = localStorage.getItem(STORAGE_KEY);
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -236,5 +236,6 @@ export function useSignerBiometrics() {
     normalizePoints,
   };
 }
+
 
 
