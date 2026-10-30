@@ -9,6 +9,8 @@ import { useClipRecorder } from './hooks/useClipRecorder';
 import { useLightingDiagnostics } from './hooks/useLightingDiagnostics';
 import { useSignerBiometrics } from './hooks/useSignerBiometrics';
 import { BiometricsCalibrationModal } from './components/BiometricsCalibrationModal';
+import { useAirGestureEngine } from './hooks/useAirGestureEngine';
+import { AirGestureSettingsModal } from './components/AirGestureSettingsModal';
 import { Header, AppMode } from './components/Header';
 import { NoticeBanner } from './components/NoticeBanner';
 import { Stage } from './components/Stage';
@@ -48,6 +50,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSpeechSettingsOpen, setIsSpeechSettingsOpen] = useState(false);
   const [isBiometricsModalOpen, setIsBiometricsModalOpen] = useState(false);
+  const [isAirGestureModalOpen, setIsAirGestureModalOpen] = useState(false);
   const [isLimitationsOpen, setIsLimitationsOpen] = useState(false);
   const [isSystemOpen, setIsSystemOpen] = useState(false);
 
@@ -187,9 +190,53 @@ export default function App() {
     [isModelReady, predict, confidenceThreshold, appMode, sentenceBuilder]
   );
 
+  // Tab switching helpers for gesture navigation
+  const handleNextTab = useCallback(() => {
+    setSidePanelTab((prev) => {
+      if (prev === 'transcript') return 'vocabulary';
+      if (prev === 'vocabulary') return 'motion';
+      return 'transcript';
+    });
+  }, []);
+
+  const handlePrevTab = useCallback(() => {
+    setSidePanelTab((prev) => {
+      if (prev === 'motion') return 'vocabulary';
+      if (prev === 'vocabulary') return 'transcript';
+      return 'motion';
+    });
+  }, []);
+
   // Diagnostics & Biometrics hooks
   const { metrics: lightingMetrics } = useLightingDiagnostics(videoRef, isStreaming);
   const signerBiometrics = useSignerBiometrics();
+
+  // Air Gesture Engine hook
+  const airGestureEngine = useAirGestureEngine({
+    onToggleCamera: () => {
+      if (isStreaming) {
+        stopCamera();
+      } else {
+        startCamera();
+      }
+    },
+    onToggleMode: () => {
+      setAppMode((prev) => (prev === 'recognize' ? 'practice' : 'recognize'));
+    },
+    onSpeakSentence: () => {
+      if (sentenceBuilder.previewSentence) {
+        speak(sentenceBuilder.previewSentence);
+      }
+    },
+    onClearBuffer: () => {
+      setTranscript([]);
+      setConfirmedCaptions([]);
+      setTentativeCaption(null);
+      sentenceBuilder.clearActiveBuffer();
+    },
+    onNextTab: handleNextTab,
+    onPrevTab: handlePrevTab,
+  });
 
   // Clip Recorder hook - wired to Stage toolbar and SidePanel Motion Capture tab
   const clipRecorder = useClipRecorder({
@@ -215,6 +262,8 @@ export default function App() {
         if (signerBiometrics.isCalibrating) {
           signerBiometrics.processCalibrationFrame(frame.pose, frame.leftHand, frame.rightHand);
         }
+        // Feed live hand landmarks to Air Gesture Engine
+        airGestureEngine.processGestureFrame(frame.leftHand, frame.rightHand);
       },
       inferenceIntervalMs: 200,
     });
@@ -339,6 +388,9 @@ export default function App() {
           lightingMetrics={lightingMetrics}
           onOpenCalibration={() => setIsBiometricsModalOpen(true)}
           isCalibrated={signerBiometrics.isCalibrated}
+          airGestureState={airGestureEngine.gestureState}
+          isAirGestureEnabled={airGestureEngine.config.enabled}
+          onOpenAirGestureSettings={() => setIsAirGestureModalOpen(true)}
         />
 
         <SidePanel
@@ -433,6 +485,15 @@ export default function App() {
         lightingMetrics={lightingMetrics}
       />
 
+      <AirGestureSettingsModal
+        isOpen={isAirGestureModalOpen}
+        onClose={() => setIsAirGestureModalOpen(false)}
+        config={airGestureEngine.config}
+        onUpdateConfig={airGestureEngine.updateConfig}
+        activeGesture={airGestureEngine.gestureState.activeGesture}
+        isStreaming={isStreaming}
+      />
+
       <LimitationsModal
         isOpen={isLimitationsOpen}
         onClose={() => setIsLimitationsOpen(false)}
@@ -451,5 +512,7 @@ export default function App() {
     </div>
   );
 }
+
+
 
 
