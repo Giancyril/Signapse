@@ -1,5 +1,5 @@
-﻿import React from 'react';
-import { BookOpen, Settings as SettingsIcon, Activity, Target, Volume2, UserCheck } from 'lucide-react';
+import React from 'react';
+import { BookOpen, Settings as SettingsIcon, Activity, Target, Volume2, UserCheck, Hand } from 'lucide-react';
 
 export type AppMode = 'recognize' | 'practice';
 
@@ -11,6 +11,8 @@ interface HeaderProps {
   onOpenSpeechSettings: () => void;
   onOpenBiometrics?: () => void;
   isCalibrated?: boolean;
+  onOpenAirGestureSettings?: () => void;
+  isAirGestureEnabled?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +23,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSpeechSettings,
   onOpenBiometrics,
   isCalibrated = false,
+  onOpenAirGestureSettings,
+  isAirGestureEnabled = false,
 }) => {
   return (
     <header className="app-header">
@@ -77,6 +81,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <UserCheck size={16} strokeWidth={1.75} className={isCalibrated ? 'text-accent' : ''} />
             <span>Biometrics</span>
+          </button>
+        )}
+
+        {onOpenAirGestureSettings && (
+          <button
+            type="button"
+            className={`btn-ghost${isAirGestureEnabled ? ' btn-ghost--active' : ''}`}
+            onClick={onOpenAirGestureSettings}
+            title="Hands-Free Air Gesture Navigation"
+          >
+            <Hand size={16} strokeWidth={1.75} className={isAirGestureEnabled ? 'text-accent' : ''} />
+            <span>Gestures</span>
           </button>
         )}
 

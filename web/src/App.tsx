@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useCamera } from './hooks/useCamera';
 import { useInference, InferenceResult } from './hooks/useInference';
 import { useLandmarks } from './hooks/useLandmarks';
@@ -345,6 +345,10 @@ export default function App() {
         onOpenVocabulary={() => setSidePanelTab('vocabulary')}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenSpeechSettings={() => setIsSpeechSettingsOpen(true)}
+        onOpenBiometrics={() => setIsBiometricsModalOpen(true)}
+        isCalibrated={signerBiometrics.isCalibrated}
+        onOpenAirGestureSettings={() => setIsAirGestureModalOpen(true)}
+        isAirGestureEnabled={airGestureEngine.config.enabled}
       />
 
       {/* Dismissible Notice Banner */}
