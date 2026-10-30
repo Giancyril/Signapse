@@ -1,4 +1,4 @@
-﻿# Signapse: Real-Time Isolated ASL Recognition System
+# Signapse: Real-Time Isolated ASL Recognition System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
@@ -350,7 +350,77 @@ Every signer has distinct body proportions. The 3-step calibration wizard guides
 | **2** | **Speech Synthesis & Smart Sentence Builder** | Shipped | Web Speech API voice synthesis, gloss-to-English grammar normalizer, and TXT/SRT export. |
 | **3** | **Clip Recording & Landmark Trajectory Inspector** | Shipped | 30 FPS mocap buffer, slow-motion scrubber (0.25x-1x), velocity vector trajectories, inline renaming, JSON mocap & CSV dataset export. |
 | **4** | **Signer Biometrics & Lighting Diagnostics** | Shipped | Left/right dominance calibration, arm-span normalization, real-time illumination quality meter. |
-| **5** | **Hands-Free Air Gesture Navigation** | Planned | Contactless UI control (palm hold, thumbs up, wave gestures to navigate without mouse/keyboard). |
+| **5** | **Hands-Free Air Gesture Navigation** | Shipped | Geometric rule-based pose classifier, 900ms hold-duration trigger engine, wave swipe detection, radial SVG HUD, Web Audio chime, and a full settings modal with localStorage persistence. |
+
+---
+
+### Day 5 Feature Deep-Dive: Hands-Free Air Gesture Navigation
+
+A fully contactless UI control layer that lets signers navigate the entire Signapse interface — switch modes, clear the sentence buffer, trigger speech synthesis, and cycle side-panel tabs — using only their hands in front of the camera. Zero mouse or keyboard interaction required.
+
+#### Geometric Rule-Based Hand Pose Classifier
+
+Rather than training a secondary neural net, the gesture engine uses fast geometric rules derived directly from MediaPipe hand landmarks. Each gesture is classified per frame at 30 FPS with no additional model overhead:
+
+| Gesture | Action Triggered | Activation |
+|:---|:---|:---:|
+| **Open Palm** | Toggle Camera On/Off | Hold 900 ms |
+| **Thumbs Up** | Speak Current Sentence | Hold 900 ms |
+| **Peace Sign (V)** | Cycle App Mode | Hold 400 ms |
+| **Closed Fist** | Clear Sentence Buffer | Hold 900 ms |
+| **Wave Right** | Next Side-Panel Tab | Swipe velocity threshold |
+| **Wave Left** | Previous Side-Panel Tab | Swipe velocity threshold |
+
+Classification rules check finger extension ratios, inter-tip distances, and thumb abduction angles — all computable in under 0.1 ms per frame, keeping the recognition pipeline at full throughput.
+
+#### Hold-Duration Trigger Engine
+
+To prevent accidental activations, all stationary gestures require a sustained hold before firing:
+- A **radial SVG progress ring** overlaid on the Stage viewport visualises hold progress in real time.
+- Hold duration (default 900 ms) and per-gesture cooldowns are user-configurable.
+- A **debounce gate** suppresses re-triggers for the configured cooldown period after each action.
+
+#### Dynamic Wave Swipe Detection
+
+Tab-switching gestures use wrist X-position velocity over a rolling 200 ms window:
+- Velocity must exceed a configurable threshold (`waveVelocityThreshold`) to prevent drift misfires.
+- Left and right waves map to `prev-tab` / `next-tab`, cycling `transcript → vocabulary → motion` (and reverse).
+- Wave detection runs independently of hold detection — the two pipelines do not interfere.
+
+#### Radial HUD Overlay (`AirGestureFeedbackOverlay`)
+
+A transparent SVG/CSS overlay mounted directly inside the Stage viewport:
+- Displays the **current detected gesture name** and a **fill-sweeping circular progress arc** while a hold is building.
+- On action fire, shows a brief **confirmation flash** with the action label.
+- Plays a **two-tone Web Audio chime** (E5 → C6, 80 ms each, sine wave oscillator) to give eyes-free confirmation of a successful trigger.
+- Automatically hides when no gesture is detected, keeping the video feed unobstructed.
+
+#### `AirGestureSettingsModal` — Full Configuration Panel
+
+A polished settings modal providing granular user control:
+- **Master enable/disable toggle** — persists across sessions.
+- **Hold Duration slider** — 300 ms to 2000 ms (default 900 ms).
+- **Action Cooldown slider** — 500 ms to 5000 ms (default 2500 ms).
+- **Wave Velocity Threshold slider** — fine-tune swipe sensitivity.
+- **Sound toggle** — enable or disable Web Audio chimes.
+- **Per-gesture action remapping** — reassign any gesture to any supported action via dropdown.
+- All settings persist to `localStorage` under the key `signapse_air_gestures_config`.
+
+#### Architecture & Integration Points
+
+```
+onLandmarksReady({ leftHand, rightHand, pose })
+  ├── gestureEngine.classify(landmarks)          → GestureClassification
+  ├── useAirGestureEngine.processFrame(gesture)  → holds, cooldowns, velocity
+  │     └── fires action callbacks:
+  │           toggle-camera  → setIsStreaming
+  │           speak-sentence → speechSynthesis.speak()
+  │           toggle-mode    → setAppMode()
+  │           clear-buffer   → sentenceBuilder.clearActiveBuffer()
+  │           next-tab       → handleNextTab()
+  │           prev-tab       → handlePrevTab()
+  └── AirGestureFeedbackOverlay ← receives gestureState for HUD rendering
+```
 
 ---
 
