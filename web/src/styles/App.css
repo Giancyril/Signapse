@@ -3173,3 +3173,177 @@ kbd {
   color: var(--text);
   white-space: nowrap;
 }
+
+/* Air Gesture Settings Modal */
+.gesture-settings-modal {
+  max-width: 520px;
+  width: 95%;
+}
+
+.gesture-modal-body {
+  padding: 16px 20px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gesture-master-toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.master-toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.master-toggle-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.master-toggle-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.gesture-live-tester-card {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+}
+
+.tester-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tester-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.tester-status-tag .tag-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--success);
+  background-color: rgba(34, 197, 94, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.tester-status-tag .tag-idle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.gesture-mappings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gesture-mappings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gesture-mapping-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.mapping-gesture-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.gesture-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mapping-action-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.action-name {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.action-trigger-type {
+  font-size: 9px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.gesture-controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.gesture-control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-label-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.control-label-group label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.gesture-control-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.control-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text);
+}
