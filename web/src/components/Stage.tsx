@@ -8,6 +8,9 @@ import { RecordControlBar } from './RecordControlBar';
 import { PracticeTarget, PracticeFeedback } from '../types/practice';
 import { LightingQualityMeter } from './LightingQualityMeter';
 import { LightingMetrics } from '../types/biometrics';
+import { AirGestureState } from '../types/gestures';
+import { AirGestureFeedbackOverlay } from './AirGestureFeedbackOverlay';
+import { Hand } from 'lucide-react';
 import { UserCheck } from 'lucide-react';
 
 interface StageProps {
@@ -49,6 +52,9 @@ interface StageProps {
   lightingMetrics?: LightingMetrics;
   onOpenCalibration?: () => void;
   isCalibrated?: boolean;
+  airGestureState?: AirGestureState;
+  isAirGestureEnabled?: boolean;
+  onOpenAirGestureSettings?: () => void;
 }
 
 export const Stage: React.FC<StageProps> = ({
@@ -87,6 +93,9 @@ export const Stage: React.FC<StageProps> = ({
   lightingMetrics,
   onOpenCalibration,
   isCalibrated = false,
+  airGestureState,
+  isAirGestureEnabled = true,
+  onOpenAirGestureSettings,
 }) => {
   // Determine camera state
   const cameraState: 'Off' | 'Starting' | 'Live' | 'Error' = error
@@ -154,6 +163,19 @@ export const Stage: React.FC<StageProps> = ({
           >
             <UserCheck size={12} className="text-accent" />
             <span>Calibrated</span>
+          </button>
+        )}
+
+        {/* Air Gesture status pill */}
+        {isStreaming && onOpenAirGestureSettings && (
+          <button
+            type="button"
+            className={`air-gesture-status-pill ${isAirGestureEnabled ? 'active' : ''}`}
+            onClick={onOpenAirGestureSettings}
+            title={isAirGestureEnabled ? 'Air Gesture Navigation Active (Click to configure)' : 'Air Gestures Disabled'}
+          >
+            <Hand size={12} className={isAirGestureEnabled ? 'text-amber-400' : 'text-text-muted'} />
+            <span>Air Gestures</span>
           </button>
         )}
 
@@ -231,6 +253,14 @@ export const Stage: React.FC<StageProps> = ({
           className={`stage-canvas ${isMirrored ? 'mirrored' : ''}`}
           aria-hidden="true"
         />
+
+        {/* Contactless Air Gesture Feedback Overlay */}
+        {airGestureState && (
+          <AirGestureFeedbackOverlay
+            state={airGestureState}
+            enabled={Boolean(isAirGestureEnabled && isStreaming)}
+          />
+        )}
 
         {/* Live Hint Chip */}
         {isStreaming && liveHint && (
@@ -334,3 +364,4 @@ export const Stage: React.FC<StageProps> = ({
     </section>
   );
 };
+
